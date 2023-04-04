@@ -1,0 +1,64 @@
+[project]
+name = "tally-counter"
+version = "0.0.1"
+authors = [
+  { name="Scott Houseman", email="scott.houseman@gmail.com" },
+]
+description = "A Python tally counter class"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+
+dev = [
+  "black",
+  "flake8",
+  "isort",
+  "mypy",
+  "pyupgrade",
+  "pre-commit",
+
+  # Test dependencies
+  "pytest",
+  "pytest-cov[all]",
+  "pytest-mock"
+]
+
+[project.urls]
+repository = "https://github.com/houseman/tally-counter"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["tally_counter*"]
+namespaces = false
+
+[tool.isort]
+profile = "black"
+src_paths = [
+    "src",
+    "test"
+]
+honor_noqa = true
+
+[tool.mypy]
+files = "src"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
+testpaths = [
+    "tests"
+]
+addopts = "--cov=src/tally_counter --cov-report html --cov-report term"
