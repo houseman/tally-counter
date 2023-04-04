@@ -2,18 +2,27 @@ from __future__ import annotations
 
 import math
 
+from typing_extensions import Self
+
 from .data_point import DataPoint
 
 
 class DataSeries:
-    def __init__(self, initial_value: float) -> None:
+    def __init__(self, initial_value: float = 0) -> None:
         self._data_points = [DataPoint(value=initial_value)]
+
+    def average(self) -> float:
+        return sum([dp._value for dp in self._data_points]) / len(self._data_points)
 
     @property
     def sum(self) -> float:
         return sum([dp._value for dp in self._data_points])
 
     def __eq__(self, other: object) -> bool:
+        """
+        Overloads the `==` operator.
+        """
+
         if isinstance(other, DataPoint):
             return self.sum == other._value
 
@@ -21,15 +30,30 @@ class DataSeries:
             return self.sum == other.sum
 
         if isinstance(other, (int, float)):
-            return math.isclose(self.sum, float(other))
-
-        if isinstance(other, str):
             try:
                 return math.isclose(self.sum, float(other))
             except ValueError:
                 return False
 
         return False
+
+    def __add__(self, other: object) -> Self:
+        """
+        Overloads the `+` operator.
+        """
+
+        if isinstance(other, (int, float)):
+            try:
+                self._data_points.append(DataPoint(float(other)))
+
+                return self
+            except ValueError:
+                pass
+
+        raise TypeError(
+            f"unsupported operand type(s) for +: '{self.__class__.__name__}' and "
+            f"'{type(other).__name__}'"
+        )
 
     def __repr__(self) -> str:
         return f"{self.sum}"
