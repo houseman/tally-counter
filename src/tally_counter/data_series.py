@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import time
 
 from typing_extensions import Self
 
@@ -12,7 +13,25 @@ class DataSeries:
         self._data_points = [DataPoint(value=initial_value)]
 
     def average(self) -> float:
+        """
+        Return the average float value for this data series
+        """
+
         return sum([dp._value for dp in self._data_points]) / len(self._data_points)
+
+    def age(self) -> int:
+        """
+        Return the age of this data series, in nanoseconds
+        """
+
+        return time.monotonic_ns() - self._data_points[0]._ts
+
+    def time_span(self) -> int:
+        """
+        Return the time span of this data series, in nanoseconds
+        """
+
+        return self._data_points[-1]._ts - self._data_points[0]._ts
 
     @property
     def sum(self) -> float:

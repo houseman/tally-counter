@@ -71,3 +71,25 @@ def test_average():
     data_series += 3445453656
 
     assert data_series.average() == 689186378.2
+
+
+def test_age(mocker):
+    mocker.patch("time.monotonic_ns", side_effect=[1001, 1002, 1003, 1004, 1005])
+
+    data_series = DataSeries()
+    data_series += 1
+    data_series += 2
+    data_series += 3
+
+    assert data_series.age() == 4  # 1005 - 1001
+
+
+def test_time_spam(mocker):
+    mocker.patch("time.monotonic_ns", side_effect=[1001, 1002, 1003, 1004])
+
+    data_series = DataSeries()
+    data_series += 1
+    data_series += 2
+    data_series += 3
+
+    assert data_series.time_span() == 3  # 1004 - 1001

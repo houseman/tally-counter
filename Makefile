@@ -33,7 +33,7 @@ install-deps: pip-sync
 test:
 	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
 	@echo "\n${BLUE}Run nox${RESET}"
-	nox --python 3.9 --reuse-existing-virtualenvs --no-install --session tests $(NOX_OPTS)
+	nox --python 3.9 --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
 	@echo "\n${BLUE}Done nox${RESET}"
 
 .PHONY: lint
