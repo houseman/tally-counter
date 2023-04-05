@@ -13,7 +13,19 @@ def tests(session):
         "requirements.txt",
         "dev-requirements.txt",
     )
-    session.run("python", "-m", "pytest")
+    session.run(
+        "python",
+        "-m",
+        "pytest",
+        "--cov",
+        "--cov-report=term",
+        "--cov-report=html",
+        "--cov-report=xml",
+        "--no-cov-on-fail",
+        "-vv",
+    )
+    session.install(".")
+    session.run("python", "-m", "doctest", "README.md")
 
 
 @nox.session(python="3.9")

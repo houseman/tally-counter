@@ -30,10 +30,7 @@ class DataSeries:
             return self.sum == other.sum
 
         if isinstance(other, (int, float)):
-            try:
-                return math.isclose(self.sum, float(other))
-            except ValueError:
-                return False
+            return math.isclose(self.sum, float(other))
 
         return False
 
@@ -42,13 +39,15 @@ class DataSeries:
         Overloads the `+` operator.
         """
 
-        if isinstance(other, (int, float)):
-            try:
-                self._data_points.append(DataPoint(float(other)))
+        if isinstance(other, DataSeries):
+            self._data_points.extend(other._data_points)
 
-                return self
-            except ValueError:
-                pass
+            return self
+
+        if isinstance(other, (int, float)):
+            self._data_points.append(DataPoint(float(other)))
+
+            return self
 
         raise TypeError(
             f"unsupported operand type(s) for +: '{self.__class__.__name__}' and "
