@@ -61,7 +61,7 @@ no_implicit_optional = true
 warn_no_return = true
 
 [[tool.mypy.overrides]]
-module = ["tests.*", "noxfile"]
+module = ["tests.*", "noxfile", "conftest"]
 ignore_errors = true
 
 [tool.pytest.ini_options]

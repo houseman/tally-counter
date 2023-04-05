@@ -18,14 +18,23 @@ A Python tally counter class
 2500.0
 >>> counter.odds
 2550.0
->>> counter.evens + counter.odds
-5050.0
 >>> counter.all.average()
 50.0
 >>> counter.evens.average()
-49.509803921568626
+49.01960784313726
 >>> counter.odds.average()
 50.0
+
+```
+
+### Timing
+### Data series age
+It is possible to retrieve a data series age.
+This is the time difference (in nanoseconds), between current time and the time that the first data point in the series was created.
+
+```python
+>>> counter.all.age()
+606490
 
 ```
 

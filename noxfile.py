@@ -13,6 +13,7 @@ def tests(session):
         "requirements.txt",
         "dev-requirements.txt",
     )
+    session.install(".")  # Install this library
     session.run(
         "python",
         "-m",
@@ -24,8 +25,18 @@ def tests(session):
         "--no-cov-on-fail",
         "-vv",
     )
-    session.install(".")
-    session.run("python", "-m", "doctest", "README.md")
+    # Run doctests from the base directory, ignoring unit tests in files matching glob
+    # `tests/*.py`
+    session.run(
+        "python",
+        "-m",
+        "pytest",
+        "--doctest-glob",
+        "*.md",
+        "--ignore-glob",
+        "tests/*.py",
+        ".",
+    )
 
 
 @nox.session(python="3.9")
