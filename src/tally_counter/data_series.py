@@ -9,33 +9,49 @@ from .data_point import DataPoint
 
 
 class DataSeries:
-    def __init__(self, initial_value: float = 0) -> None:
-        self._data_points = [DataPoint(value=initial_value)]
+    def __init__(self, initial_value: float = 0, *, ttl: int | None = None) -> None:
+        self.__data_points = [DataPoint(initial_value)]
+        self.__ttl = ttl
 
     def average(self) -> float:
         """
         Return the average float value for this data series
         """
 
-        return sum([dp._value for dp in self._data_points]) / len(self._data_points)
+        return sum([dp.value for dp in self.__data_points]) / len(self.__data_points)
 
     def age(self) -> int:
         """
         Return the age of this data series, in nanoseconds
         """
 
-        return time.monotonic_ns() - self._data_points[0]._ts
+        return time.monotonic_ns() - self.__data_points[0].timestamp
 
     def time_span(self) -> int:
         """
         Return the time span of this data series, in nanoseconds
         """
 
-        return self._data_points[-1]._ts - self._data_points[0]._ts
+        return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
 
     @property
     def sum(self) -> float:
-        return sum([dp._value for dp in self._data_points])
+        return sum([dp.value for dp in self.__data_points])
+
+    def __prune_data(self) -> None:
+        """
+        Prune data that has passed TTL from series, if a TTL is specified.
+        """
+
+        if not self.__ttl:
+            return None
+
+        ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
+        prune_ts = time.monotonic_ns() - ttl_in_ns
+
+        self.__data_points = [
+            dp for dp in self.__data_points if dp.timestamp > prune_ts
+        ]
 
     def __eq__(self, other: object) -> bool:
         """
@@ -43,7 +59,7 @@ class DataSeries:
         """
 
         if isinstance(other, DataPoint):
-            return self.sum == other._value
+            return self.sum == other.value
 
         if isinstance(other, DataSeries):
             return self.sum == other.sum
@@ -59,12 +75,12 @@ class DataSeries:
         """
 
         if isinstance(other, DataSeries):
-            self._data_points.extend(other._data_points)
+            self.__data_points.extend(other.__data_points)
 
             return self
 
         if isinstance(other, (int, float)):
-            self._data_points.append(DataPoint(float(other)))
+            self.__data_points.append(DataPoint(float(other)))
 
             return self
 

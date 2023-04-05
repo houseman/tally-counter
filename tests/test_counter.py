@@ -1,7 +1,40 @@
+import pytest
+
+
 def test_init():
     from tally_counter import Counter
 
-    assert Counter() is not None
+    counter = Counter(foo=100)
+    assert counter.foo == 100
+
+
+def test_at_least_one_attr():
+    from tally_counter import Counter
+
+    with pytest.raises(TypeError, match="Counter expects at least 1 attribute"):
+        Counter()
+
+
+def test_no_ttl_attr():
+    from tally_counter import Counter
+
+    counter = Counter(foo=1001, ttl=3600)
+    with pytest.raises(AttributeError):
+        counter.ttl
+
+
+def test_invalid_ttl_attr():
+    from tally_counter import Counter
+
+    with pytest.raises(TypeError):
+        Counter(foo=1001, ttl="foo")
+
+
+def test_invalid_attr():
+    from tally_counter import Counter
+
+    with pytest.raises(ValueError):
+        Counter(foo="bar")
 
 
 def test_init_kwargs():

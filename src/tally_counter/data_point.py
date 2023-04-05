@@ -5,8 +5,8 @@ import time
 
 class DataPoint:
     def __init__(self, value: float) -> None:
-        self._value = value
-        self._ts = time.monotonic_ns()
+        self.__value = value
+        self.__ts = time.monotonic_ns()
 
     @property
     def value(self) -> float:
@@ -14,4 +14,12 @@ class DataPoint:
         This data point's float value
         """
 
-        return self._value
+        return self.__value
+
+    @property
+    def timestamp(self) -> int:
+        """
+        This data point's monotonic timestamp
+        """
+
+        return self.__ts
