@@ -21,6 +21,20 @@ class DataSeries:
         self._data_points = [initial_value]
         self.__ttl = ttl
 
+    def incr(self, value: float = 1) -> None:
+        """
+        Increment the count for this data series by default of `1` or specified `value`.
+        """
+
+        if isinstance(value, (float, int)):
+            self._data_points.append(DataPoint(float(value), time.monotonic_ns()))
+
+            return
+
+        raise TypeError(
+            f"incr() argument must be a number, not '{value.__class__.__name__}'"
+        )
+
     def average(self) -> float:
         """
         Return the average float value for this data series

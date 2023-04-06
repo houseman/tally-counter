@@ -1,34 +1,77 @@
 # tally-counter
 A Python tally counter class
 
-<p align="center">
 ![Supported Python version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
 ![Code Style](https://img.shields.io/badge/style-black-brightgreen)
 ![Linting](https://img.shields.io/badge/linting-flake8%20%7C%20isort%20%7C%20mypy-yellowgreen)
-</p>
 
 ## Usage
+This contrived sample counts numbers from 1 to 100. We count the following metrics
+- an aggregate (sum) of all natural numbers from 1 to 100
+- a separate aggregate sum of all even numbers from 1 to 100
+- a separate aggregate sum of all odd numbers from 1 to 100
+- a count of the numbers from 1 to 100
+
 ```python
 >>> from tally_counter import Counter
 
->>> counter = Counter(all=0, odds=0, evens=0)
+>>> counter = Counter(numbers=0, naturals=0, odds=0, evens=0)
 >>> for x in range(1, 101):  # 1..100 inclusive
-...     counter.all += x
+...     counter.naturals.incr(x)
 ...     if x % 2:
-...         counter.evens += x
+...         counter.evens.incr(x)
 ...     else:
 ...         counter.odds += x
->>> counter.all  # Sum of all natural numbers 1..100
+...
+...     counter.numbers.incr()  # Default increment value is 1
+
+```
+
+These metrics are now available to us
+### Sum of all natural numbers from 1 to 100
+
+> **Note**
+> Counts are stored internally as `float` values
+
+```python
+>>> counter.naturals
 5050.0
->>> counter.evens  # Sum of all even numbers in range 1..100
+
+```
+### Count of all natural numbers from 1 to 100
+```python
+>>> counter.numbers
+100.0
+
+```
+
+### Sum of all even numbers in range 1 to 100
+```python
+>>> counter.evens
 2500.0
->>> counter.odds  # Sum of all odd numbers in range 1..100
+
+```
+### Sum of all odd numbers in range 1 to 100
+```python
+>>> counter.odds
 2550.0
->>> counter.all.average()  # Average of all natural numbers 1..100
+
+```
+### Average of all natural numbers 1 to 100
+```python
+>>> counter.naturals.average()
 50.0
->>> counter.evens.average()  # Average of all even numbers in range 1..100
+
+```
+### Average of all even numbers in range 1 to 100
+```python
+>>> counter.evens.average()
 49.01960784313726
->>> counter.odds.average()  # Average of all odd numbers in range 1..100
+
+```
+### Average of all odd numbers in range 1 to 100
+```python
+>>> counter.odds.average()
 50.0
 
 ```
@@ -38,8 +81,8 @@ A Python tally counter class
 This is the time difference (in nanoseconds), between the current system time and the time that the first data point in the series was created.
 
 ```python
->>> counter.all.age()
-507500
+>>> counter.naturals.age()
+757500
 
 ```
 
@@ -48,7 +91,7 @@ This is the time difference (in nanoseconds), between the first and the latest d
 
 ```python
 >>> counter.evens.span()
-495000
+740000
 
 ```
 
@@ -61,3 +104,6 @@ This may be useful for things such as rate limits (a use case where counts shoul
 >>> r_counter = Counter(requests=0, ttl=60000)  # Count requests for the past minute
 
 ```
+
+## Documentation
+- [Developer Notes](./docs/DEV.md)

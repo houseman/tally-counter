@@ -46,6 +46,20 @@ def test_repr():
     assert f"{DataSeries(1)}" == "1.0"
 
 
+def test_incr():
+    data_series = DataSeries(1)
+    data_series.incr()
+    data_series.incr()
+    assert data_series == 3
+
+
+def test_incr_raises_type_error():
+    with pytest.raises(
+        TypeError, match=re.escape("incr() argument must be a number, not 'str'")
+    ):
+        DataSeries(1).incr("foo")
+
+
 def test_addition_overloading():
     data_series = DataSeries(1)
     data_series += 9.0
