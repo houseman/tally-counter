@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A Python tally counter class"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -53,7 +53,7 @@ honor_noqa = true
 
 [tool.mypy]
 files = ["src"]
-python_version = 3.9
+python_version = 3.8
 ignore_errors = false
 disallow_untyped_calls = true
 disallow_untyped_defs = true
@@ -71,4 +71,3 @@ pythonpath = [
 testpaths = [
     "tests"
 ]
-# addopts = "--cov=src/tally_counter --cov-report html --cov-report term"

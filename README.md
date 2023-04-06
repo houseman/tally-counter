@@ -1,6 +1,12 @@
 # tally-counter
 A Python tally counter class
 
+<p align="center">
+![Supported Python version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
+![Code Style](https://img.shields.io/badge/style-black-brightgreen)
+![Linting](https://img.shields.io/badge/linting-flake8%20%7C%20isort%20%7C%20mypy-yellowgreen)
+</p>
+
 ## Usage
 ```python
 >>> from tally_counter import Counter

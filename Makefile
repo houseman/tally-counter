@@ -32,13 +32,17 @@ install-deps: pip-sync
 .PHONY: test
 test:
 	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	@echo "\n${BLUE}Run nox${RESET}"
-	nox --python 3.9 --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
-	@echo "\n${BLUE}Done nox${RESET}"
+	@echo "\n${BLUE}Test in Python 3.8${RESET}"
+	nox --python 3.8 --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
+
+test-py-sup:
+	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
+	@echo "\n${BLUE}Test in all supported Python versions${RESET}"
+	nox --python 3.8 3.9 3.10 3.11 --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
 
 .PHONY: lint
 lint:
 	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
 	@echo "\n${BLUE}Run nox${RESET}"
-	nox --python 3.9 --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
+	nox --python 3.8 --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
 	@echo "\n${BLUE}Done nox${RESET}"
