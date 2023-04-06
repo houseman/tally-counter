@@ -12,7 +12,7 @@ from tally_counter.data_series import DataSeries
         (DataSeries(10), 10.0),
         (DataSeries(100.0), 100),
         (DataSeries(100.01), 100.01),
-        (DataSeries(100.01), DataPoint(100.01)),
+        (DataSeries(100.01), DataPoint(100.01, 0)),
         (DataSeries(100.01), DataSeries(100.01)),
     ],
 )
@@ -24,7 +24,7 @@ def test_equality(data_series, expected):
     ["data_series", "expected"],
     [
         (DataSeries(100.01), 100.0),
-        (DataSeries(100.01), DataPoint(100.1)),
+        (DataSeries(100.01), DataPoint(100.1, 0)),
         (DataSeries(100.01), DataSeries(100)),
     ],
 )
@@ -43,7 +43,7 @@ def test_invalid_equality_type():
 
 
 def test_repr():
-    assert f"{DataSeries(1)}" == "1"
+    assert f"{DataSeries(1)}" == "1.0"
 
 
 def test_addition_overloading():
@@ -92,4 +92,46 @@ def test_time_spam(mocker):
     data_series += 2
     data_series += 3
 
-    assert data_series.time_span() == 3  # 1004 - 1001
+    assert data_series.span() == 3  # 1004 - 1001
+
+
+def test_prune_data_has_ttl(mocker):
+    mocker.patch("time.monotonic_ns", side_effect=[1000000, 6000000])
+
+    data_pointe_one = DataPoint(1, 2000000)
+    data_pointe_two = DataPoint(1, 3000000)
+    data_pointe_three = DataPoint(1, 4000000)
+    data_pointe_four = DataPoint(1, 5000000)
+
+    data_series = DataSeries(1, ttl=2)  # ttl=2ms == 2000000ns, ts == 1000000
+    data_series += data_pointe_one
+    data_series += data_pointe_two
+    data_series += data_pointe_three
+    data_series += data_pointe_four
+
+    # Should prune anything < (6000000 - 2000000ns) == 4000000
+    data_series._prune_data()
+    assert data_series._data_points == [data_pointe_three, data_pointe_four]
+
+
+def test_prune_data_no_ttl(mocker):
+    mocker.patch("time.monotonic_ns", side_effect=[1])
+
+    data_pointe_one = DataPoint(1, 2)
+    data_pointe_two = DataPoint(1, 3)
+    data_pointe_three = DataPoint(1, 4)
+    data_pointe_four = DataPoint(1, 5)
+
+    data_series = DataSeries(data_pointe_one)
+    data_series += data_pointe_two
+    data_series += data_pointe_three
+    data_series += data_pointe_four
+
+    # Should prune nothing
+    data_series._prune_data()
+    assert data_series._data_points == [
+        data_pointe_one,
+        data_pointe_two,
+        data_pointe_three,
+        data_pointe_four,
+    ]

@@ -29,12 +29,20 @@ A Python tally counter class
 
 ### Timing
 ### Data series age
-It is possible to retrieve a data series age.
-This is the time difference (in nanoseconds), between current time and the time that the first data point in the series was created.
+This is the time difference (in nanoseconds), between the current system time and the time that the first data point in the series was created.
 
 ```python
 >>> counter.all.age()
-606490
+507500
+
+```
+
+### Data series time span
+This is the time difference (in nanoseconds), between the first and the latest data points' timestamps.
+
+```python
+>>> counter.evens.span()
+495000
 
 ```
 
@@ -53,7 +61,7 @@ make update-deps
 ```
 
 ### Linting
-This target will run the `pre-commit`  hooks.
+This target will run all `pre-commit`  hooks.
 ```shell
  make lint
 ```

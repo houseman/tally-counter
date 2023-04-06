@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import time
-
 
 class DataPoint:
-    def __init__(self, value: float) -> None:
+    def __init__(self, value: float, ts: int) -> None:
         self.__value = value
-        self.__ts = time.monotonic_ns()
+        self.__ts = ts
 
     @property
     def value(self) -> float:

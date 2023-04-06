@@ -9,8 +9,16 @@ from .data_point import DataPoint
 
 
 class DataSeries:
-    def __init__(self, initial_value: float = 0, *, ttl: int | None = None) -> None:
-        self.__data_points = [DataPoint(initial_value)]
+    def __init__(
+        self, initial_value: float | DataPoint | None = None, *, ttl: int | None = None
+    ) -> None:
+        if initial_value is None:
+            initial_value = 0.0
+
+        if isinstance(initial_value, (float, int)):
+            initial_value = DataPoint(float(initial_value), time.monotonic_ns())
+
+        self._data_points = [initial_value]
         self.__ttl = ttl
 
     def average(self) -> float:
@@ -18,27 +26,27 @@ class DataSeries:
         Return the average float value for this data series
         """
 
-        return sum([dp.value for dp in self.__data_points]) / len(self.__data_points)
+        return sum([dp.value for dp in self._data_points]) / len(self._data_points)
 
     def age(self) -> int:
         """
         Return the age of this data series, in nanoseconds
         """
 
-        return time.monotonic_ns() - self.__data_points[0].timestamp
+        return time.monotonic_ns() - self._data_points[0].timestamp
 
-    def time_span(self) -> int:
+    def span(self) -> int:
         """
         Return the time span of this data series, in nanoseconds
         """
 
-        return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
+        return self._data_points[-1].timestamp - self._data_points[0].timestamp
 
     @property
     def sum(self) -> float:
-        return sum([dp.value for dp in self.__data_points])
+        return sum([dp.value for dp in self._data_points])
 
-    def __prune_data(self) -> None:
+    def _prune_data(self) -> None:
         """
         Prune data that has passed TTL from series, if a TTL is specified.
         """
@@ -49,9 +57,7 @@ class DataSeries:
         ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
         prune_ts = time.monotonic_ns() - ttl_in_ns
 
-        self.__data_points = [
-            dp for dp in self.__data_points if dp.timestamp > prune_ts
-        ]
+        self._data_points = [dp for dp in self._data_points if dp.timestamp >= prune_ts]
 
     def __eq__(self, other: object) -> bool:
         """
@@ -75,12 +81,17 @@ class DataSeries:
         """
 
         if isinstance(other, DataSeries):
-            self.__data_points.extend(other.__data_points)
+            self._data_points.extend(other._data_points)
+
+            return self
+
+        if isinstance(other, DataPoint):
+            self._data_points.append(other)
 
             return self
 
         if isinstance(other, (int, float)):
-            self.__data_points.append(DataPoint(float(other)))
+            self._data_points.append(DataPoint(float(other), time.monotonic_ns()))
 
             return self
 

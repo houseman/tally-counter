@@ -40,6 +40,5 @@ test:
 lint:
 	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
 	@echo "\n${BLUE}Run nox${RESET}"
-	git add .
 	nox --python 3.9 --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
 	@echo "\n${BLUE}Done nox${RESET}"
