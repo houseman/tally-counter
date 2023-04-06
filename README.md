@@ -12,23 +12,23 @@ A Python tally counter class
 ...         counter.evens += x
 ...     else:
 ...         counter.odds += x
->>> counter.all
+>>> counter.all  # Sum of all natural numbers 1..100
 5050.0
->>> counter.evens
+>>> counter.evens  # Sum of all even numbers in range 1..100
 2500.0
->>> counter.odds
+>>> counter.odds  # Sum of all odd numbers in range 1..100
 2550.0
->>> counter.all.average()
+>>> counter.all.average()  # Average of all natural numbers 1..100
 50.0
->>> counter.evens.average()
+>>> counter.evens.average()  # Average of all even numbers in range 1..100
 49.01960784313726
->>> counter.odds.average()
+>>> counter.odds.average()  # Average of all odd numbers in range 1..100
 50.0
 
 ```
 
 ### Timing
-### Data series age
+#### Data series age
 This is the time difference (in nanoseconds), between the current system time and the time that the first data point in the series was created.
 
 ```python
@@ -37,7 +37,7 @@ This is the time difference (in nanoseconds), between the current system time an
 
 ```
 
-### Data series time span
+#### Data series time span
 This is the time difference (in nanoseconds), between the first and the latest data points' timestamps.
 
 ```python
@@ -46,22 +46,12 @@ This is the time difference (in nanoseconds), between the first and the latest d
 
 ```
 
-## Development
-### Setup
-#### Install dependencies
+### Setting a TTL for counters
+It is possible to set a TTL (Time-To-Live) for a counter, through setting a `ttl` argument value in milliseconds.
+If this is set, then counters that exceed that TTL in age are discarded.
+This may be useful for things such as rate limits (a use case where counts should be made irrelevant once a certain amount of time has passed).
 
-```shell
-make install-deps
-```
+```python
+>>> r_counter = Counter(requests=0, ttl=60000)  # Count requests for the past minute
 
-#### Update dependencies
-
-```shell
-make update-deps
-```
-
-### Linting
-This target will run all `pre-commit`  hooks.
-```shell
- make lint
 ```
