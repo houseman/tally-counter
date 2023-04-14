@@ -1,3 +1,5 @@
+from typing import Any
+
 from .data_series import DataSeries
 
 
@@ -10,13 +12,23 @@ class Counter:
         except ValueError:
             raise TypeError("'int' expected for argument 'ttl'")
 
-        if not kwargs:
-            raise TypeError(f"{self.__class__.__name__} expects at least 1 attribute")
-
         data = {}
         for k, v in kwargs.items():
             initial_value = None if v is None else float(v)
 
             data[str(k)] = DataSeries(initial_value=initial_value, ttl=ttl)
 
-        self.__dict__.update(data)
+        self._data = data
+        self._ttl = ttl
+
+    def __getattr__(self, name: str) -> Any:
+        """
+        Called when an attribute lookup has not found the attribute in the usual places
+        """
+
+        data_series = self._data.get(name)
+        if not data_series:
+            data_series = DataSeries(initial_value=None, ttl=self._ttl)
+            self._data[name] = data_series
+
+        return data_series

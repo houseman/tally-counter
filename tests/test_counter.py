@@ -8,25 +8,24 @@ def test_init():
     assert counter.foo == 100
 
 
-def test_at_least_one_attr():
+def test_constructor_given_no_attr():
     from tally_counter import Counter
 
-    with pytest.raises(TypeError, match="Counter expects at least 1 attribute"):
-        Counter()
+    counter = Counter()
+    assert counter._data == {}
 
 
-def test_no_ttl_attr():
+def test_ttl_attr():
     from tally_counter import Counter
 
-    counter = Counter(foo=1001, ttl=3600)
-    with pytest.raises(AttributeError):
-        counter.ttl
+    counter = Counter(ttl=3600)
+    assert counter._ttl == 3600
 
 
 def test_invalid_ttl_attr():
     from tally_counter import Counter
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="'int' expected for argument 'ttl'"):
         Counter(foo=1001, ttl="foo")
 
 
@@ -37,7 +36,7 @@ def test_invalid_attr():
         Counter(foo="bar")
 
 
-def test_init_kwargs():
+def test_init_has_kwargs():
     from tally_counter import Counter
 
     counter = Counter(foo=100.0, bar=110)
@@ -48,10 +47,29 @@ def test_init_kwargs():
     assert counter.bar == 110
 
 
-def test_through():
+def test_init_no_kwargs():
     from tally_counter import Counter
 
-    counter = Counter(all=0, odds=0, evens=0)
+    counter = Counter()
+
+    # Attribute does not exist, instantiated to a zero value
+    assert counter.foo == 0
+
+    # Attribute does not exist, instantiated to a zero value, then incremented
+    counter.bar.incr()
+    assert counter.bar == 1
+
+    # Attribute does not exist, instantiated to a zero value, then incremented by a
+    # given value
+    counter.baz.incr(1234)
+    assert counter.baz == 1234
+
+
+@pytest.mark.parametrize("kwargs", [{"all": 0, "odds": 0, "evens": 0}, {}])
+def test_through(kwargs):
+    from tally_counter import Counter
+
+    counter = Counter(**kwargs)
     for x in range(1, 101):  # Including 1, 100
         counter.all.incr(x)
         if x % 2:
