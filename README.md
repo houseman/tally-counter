@@ -15,13 +15,13 @@ This contrived sample counts numbers from 1 to 100. We count the following metri
 ```python
 >>> from tally_counter import Counter
 
->>> counter = Counter(numbers=0, naturals=0, odds=0, evens=0)
+>>> counter = Counter(numbers=None, naturals=None, odds=None, evens=None)
 >>> for x in range(1, 101):  # 1..100 inclusive
 ...     counter.naturals.incr(x)
 ...     if x % 2:
 ...         counter.evens.incr(x)
 ...     else:
-...         counter.odds += x
+...         counter.odds.incr(x)
 ...
 ...     counter.numbers.incr()  # Default increment value is 1
 
@@ -60,19 +60,19 @@ These metrics are now available to us
 ### Average of all natural numbers 1 to 100
 ```python
 >>> counter.naturals.average()
-50.0
+50.5
 
 ```
 ### Average of all even numbers in range 1 to 100
 ```python
 >>> counter.evens.average()
-49.01960784313726
+50.0
 
 ```
 ### Average of all odd numbers in range 1 to 100
 ```python
 >>> counter.odds.average()
-50.0
+51.0
 
 ```
 
@@ -82,7 +82,7 @@ This is the time difference (in nanoseconds), between the current system time an
 
 ```python
 >>> counter.naturals.age()
-757500
+750000
 
 ```
 
@@ -91,7 +91,7 @@ This is the time difference (in nanoseconds), between the first and the latest d
 
 ```python
 >>> counter.evens.span()
-740000
+735000
 
 ```
 

@@ -13,6 +13,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
+keywords = [
+  "statistics",
+  "counter"
+]
+
 dependencies = []
 
 [project.optional-dependencies]
@@ -35,12 +40,18 @@ dev = [
 repository = "https://github.com/houseman/tally-counter"
 
 [build-system]
-requires = ["setuptools"]
+requires = [
+  "setuptools"
+]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["tally_counter*"]
+where = [
+  "src"
+]
+include = [
+  "tally_counter*"
+]
 namespaces = false
 
 [tool.isort]
@@ -52,7 +63,9 @@ src_paths = [
 honor_noqa = true
 
 [tool.mypy]
-files = ["src"]
+files = [
+  "src"
+]
 python_version = 3.8
 ignore_errors = false
 disallow_untyped_calls = true
@@ -61,7 +74,11 @@ no_implicit_optional = true
 warn_no_return = true
 
 [[tool.mypy.overrides]]
-module = ["tests.*", "noxfile", "conftest"]
+module = [
+  "tests.*",
+  "noxfile",
+  "conftest"
+]
 ignore_errors = true
 
 [tool.pytest.ini_options]
@@ -70,4 +87,13 @@ pythonpath = [
 ]
 testpaths = [
     "tests"
+]
+
+[tool.coverage.run]
+branch = true
+source = [
+  "tally_counter"
+]
+omit = [
+  "tests/*"
 ]

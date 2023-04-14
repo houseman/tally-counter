@@ -53,13 +53,12 @@ def test_through():
 
     counter = Counter(all=0, odds=0, evens=0)
     for x in range(1, 101):  # Including 1, 100
-        counter.all += x
+        counter.all.incr(x)
         if x % 2:
-            counter.evens += x  # Add to "evens" counter
+            counter.evens.incr(x)  # Add to "evens" counter
         else:
-            counter.odds += x  # Add to "odds" counter
+            counter.odds.incr(x)  # Add to "odds" counter
 
     assert counter.all == 5050  # Sum of natural numbers 1 to 100
     assert counter.evens == 2500
     assert counter.odds == 2550
-    assert counter.evens + counter.odds == counter.all

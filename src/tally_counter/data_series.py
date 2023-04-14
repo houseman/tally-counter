@@ -3,8 +3,6 @@ from __future__ import annotations
 import math
 import time
 
-from typing_extensions import Self
-
 from .data_point import DataPoint
 
 
@@ -12,14 +10,14 @@ class DataSeries:
     def __init__(
         self, initial_value: float | DataPoint | None = None, *, ttl: int | None = None
     ) -> None:
+        self.__ttl = ttl
+
         if initial_value is None:
-            initial_value = 0.0
+            self._data_points = []
 
         if isinstance(initial_value, (float, int)):
             initial_value = DataPoint(float(initial_value), time.monotonic_ns())
-
-        self._data_points = [initial_value]
-        self.__ttl = ttl
+            self._data_points = [initial_value]
 
     def incr(self, value: float = 1) -> None:
         """
@@ -88,31 +86,6 @@ class DataSeries:
             return math.isclose(self.sum, float(other))
 
         return False
-
-    def __add__(self, other: object) -> Self:
-        """
-        Overloads the `+` operator.
-        """
-
-        if isinstance(other, DataSeries):
-            self._data_points.extend(other._data_points)
-
-            return self
-
-        if isinstance(other, DataPoint):
-            self._data_points.append(other)
-
-            return self
-
-        if isinstance(other, (int, float)):
-            self._data_points.append(DataPoint(float(other), time.monotonic_ns()))
-
-            return self
-
-        raise TypeError(
-            f"unsupported operand type(s) for +: '{self.__class__.__name__}' and "
-            f"'{type(other).__name__}'"
-        )
 
     def __repr__(self) -> str:
         return f"{self.sum}"

@@ -16,9 +16,10 @@ class Counter:
         if not kwargs:
             raise TypeError(f"{self.__class__.__name__} expects at least 1 attribute")
 
-        self.__dict__.update(
-            {
-                str(k): DataSeries(initial_value=float(v), ttl=ttl)
-                for k, v in kwargs.items()
-            }
-        )
+        data = {}
+        for k, v in kwargs.items():
+            initial_value = None if v is None else float(v)
+
+            data[str(k)] = DataSeries(initial_value=initial_value, ttl=ttl)
+
+        self.__dict__.update(data)
