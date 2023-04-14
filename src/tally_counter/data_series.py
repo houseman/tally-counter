@@ -40,6 +40,13 @@ class DataSeries:
 
         return sum([dp.value for dp in self._data_points]) / len(self._data_points)
 
+    def len(self) -> int:
+        """
+        Return the length (number of data points) of this data series
+        """
+
+        return len(self._data_points)
+
     def age(self) -> int:
         """
         Return the age of this data series, in nanoseconds

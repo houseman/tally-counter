@@ -75,6 +75,12 @@ These metrics are now available to us
 51.0
 
 ```
+### Length (number of data points in) of a data series
+```python
+>>> counter.numbers.len()
+100
+
+```
 
 ### Timing
 #### Data series age
@@ -101,9 +107,31 @@ If this is set, then counters that exceed that TTL in age are discarded.
 This may be useful for things such as rate limits (a use case where counts should be made irrelevant once a certain amount of time has passed).
 
 ```python
->>> r_counter = Counter(requests=0, ttl=60000)  # Count requests for the past minute
+>>> r_counter = Counter("requests", ttl=60000)  # Count requests for the past minute
 
 ```
 
-## Documentation
+### Setting an initial value for counters
+It is possible to create the counters and set an initial data point at once
+```python
+>>> foo_counter = Counter(foo=100, bar=200)
+>>> foo_counter.foo.incr(1)
+>>> foo_counter.foo
+101.0
+>>> foo_counter.bar
+200.0
+
+```
+
+### Counter auto-instantiation
+By default, a counter data series will be created if it is accessed but does not yest
+exist, and will be set to an initial value of zero.
+```python
+>>> bar_counter = Counter()
+>>> bar_counter.bar
+0
+
+```
+
+## Documentation for Contributors
 - [Developer Notes](./docs/DEV.md)

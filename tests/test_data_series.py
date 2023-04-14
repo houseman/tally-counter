@@ -127,3 +127,13 @@ def test_prune_data_no_ttl(mocker):
     # Should prune nothing
     data_series._prune_data()
     assert len(data_series._data_points) == 5
+
+
+def test_len():
+    data_series = DataSeries(1)
+    data_series.incr()
+    data_series.incr()
+    data_series.incr()
+    data_series.incr()
+
+    assert data_series.len() == 5
