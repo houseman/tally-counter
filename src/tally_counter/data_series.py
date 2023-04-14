@@ -8,29 +8,31 @@ from .data_point import DataPoint
 
 class DataSeries:
     def __init__(
-        self, initial_value: float | DataPoint | None = None, *, ttl: int | None = None
+        self, initial_value: int | DataPoint | None = None, *, ttl: int | None = None
     ) -> None:
         self.__ttl = ttl
+        self._data_points: list[DataPoint] = []
 
-        if initial_value is None:
-            self._data_points = []
+        if initial_value is not None:
+            if isinstance(initial_value, DataPoint):
+                self._data_points.append(initial_value)
+            else:
+                self._data_points.append(
+                    DataPoint(int(initial_value), time.monotonic_ns())
+                )
 
-        if isinstance(initial_value, (float, int)):
-            initial_value = DataPoint(float(initial_value), time.monotonic_ns())
-            self._data_points = [initial_value]
-
-    def incr(self, value: float = 1) -> None:
+    def incr(self, value: int = 1) -> None:
         """
         Increment the count for this data series by default of `1` or specified `value`.
         """
 
-        if isinstance(value, (float, int)):
-            self._data_points.append(DataPoint(float(value), time.monotonic_ns()))
+        if isinstance(value, int):
+            self._data_points.append(DataPoint(value, time.monotonic_ns()))
 
             return
 
         raise TypeError(
-            f"incr() argument must be a number, not '{value.__class__.__name__}'"
+            f"incr() argument must be an integer, not '{value.__class__.__name__}'"
         )
 
     def average(self) -> float:
@@ -62,7 +64,7 @@ class DataSeries:
         return self._data_points[-1].timestamp - self._data_points[0].timestamp
 
     @property
-    def sum(self) -> float:
+    def sum(self) -> int:
         return sum([dp.value for dp in self._data_points])
 
     def _prune_data(self) -> None:
@@ -89,8 +91,8 @@ class DataSeries:
         if isinstance(other, DataSeries):
             return self.sum == other.sum
 
-        if isinstance(other, (int, float)):
-            return math.isclose(self.sum, float(other))
+        if isinstance(other, int):
+            return math.isclose(self.sum, other)
 
         return False
 

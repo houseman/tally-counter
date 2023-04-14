@@ -18,7 +18,7 @@ This contrived sample counts numbers from 1 to 100. We count the following metri
 >>> counter = Counter("numbers", "naturals", "odds", "evens")
 >>> for x in range(1, 101):  # 1..100 inclusive
 ...     counter.naturals.incr(x)
-...     if x % 2:
+...     if x % 2 == 0:
 ...         counter.evens.incr(x)
 ...     else:
 ...         counter.odds.incr(x)
@@ -29,32 +29,28 @@ This contrived sample counts numbers from 1 to 100. We count the following metri
 
 These metrics are now available to us
 ### Sum of all natural numbers from 1 to 100
-
-> **Note**
-> Counts are stored internally as `float` values
-
 ```python
 >>> counter.naturals
-5050.0
+5050
 
 ```
 ### Count of all natural numbers from 1 to 100
 ```python
 >>> counter.numbers
-100.0
+100
 
 ```
 
 ### Sum of all even numbers in range 1 to 100
 ```python
 >>> counter.evens
-2500.0
+2550
 
 ```
 ### Sum of all odd numbers in range 1 to 100
 ```python
 >>> counter.odds
-2550.0
+2500
 
 ```
 ### Average of all natural numbers 1 to 100
@@ -65,14 +61,14 @@ These metrics are now available to us
 ```
 ### Average of all even numbers in range 1 to 100
 ```python
->>> counter.evens.average()
-50.0
+>>> counter.evens.average()  # Returns a float type
+51.0
 
 ```
 ### Average of all odd numbers in range 1 to 100
 ```python
 >>> counter.odds.average()
-51.0
+50.0
 
 ```
 ### Length (number of data points in) of a data series
@@ -117,9 +113,9 @@ It is possible to create the counters and set an initial data point at once
 >>> foo_counter = Counter(foo=100, bar=200)
 >>> foo_counter.foo.incr(1)
 >>> foo_counter.foo
-101.0
+101
 >>> foo_counter.bar
-200.0
+200
 
 ```
 

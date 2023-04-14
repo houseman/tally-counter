@@ -47,11 +47,9 @@ def test_invalid_attr():
 def test_init_has_kwargs():
     from tally_counter import Counter
 
-    counter = Counter(foo=100.0, bar=110)
+    counter = Counter(foo=100, bar=110)
 
     assert counter.foo == 100
-    assert counter.foo == 100.0
-    assert counter.bar == 110.0
     assert counter.bar == 110
 
 

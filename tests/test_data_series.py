@@ -6,14 +6,18 @@ from tally_counter.data_point import DataPoint
 from tally_counter.data_series import DataSeries
 
 
+def test_init():
+    assert DataSeries() == 0
+    assert DataSeries(1) == 1
+    assert DataSeries(DataPoint(123, 1000)) == 123
+
+
 @pytest.mark.parametrize(
     ["data_series", "expected"],
     [
-        (DataSeries(10), 10.0),
-        (DataSeries(100.0), 100),
-        (DataSeries(100.01), 100.01),
-        (DataSeries(100.01), DataPoint(100.01, 0)),
-        (DataSeries(100.01), DataSeries(100.01)),
+        (DataSeries(10), 10),
+        (DataSeries(100), DataPoint(100, 0)),
+        (DataSeries(100), DataSeries(100)),
     ],
 )
 def test_equality(data_series, expected):
@@ -23,9 +27,9 @@ def test_equality(data_series, expected):
 @pytest.mark.parametrize(
     ["data_series", "expected"],
     [
-        (DataSeries(100.01), 100.0),
-        (DataSeries(100.01), DataPoint(100.1, 0)),
-        (DataSeries(100.01), DataSeries(100)),
+        (DataSeries(100), 10),
+        (DataSeries(100), DataPoint(10, 0)),
+        (DataSeries(100), DataSeries(10)),
     ],
 )
 def test_inequality(data_series, expected):
@@ -34,7 +38,7 @@ def test_inequality(data_series, expected):
 
 def test_inequality_non_numeric_str():
     assert DataSeries(1) != "1"
-    assert DataSeries(1) != "1.0"
+    assert DataSeries(1) != "1"
     assert DataSeries(1) != "foo"
 
 
@@ -43,7 +47,7 @@ def test_invalid_equality_type():
 
 
 def test_repr():
-    assert f"{DataSeries(1)}" == "1.0"
+    assert f"{DataSeries(1)}" == "1"
 
 
 def test_incr():

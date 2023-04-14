@@ -4,7 +4,7 @@ from .data_series import DataSeries
 
 
 class Counter:
-    def __init__(self, *args: str, **kwargs: float) -> None:
+    def __init__(self, *args: str, **kwargs: int) -> None:
         try:
             ttl = int(kwargs.pop("ttl"))
         except KeyError:
@@ -17,7 +17,7 @@ class Counter:
             data[str(k)] = DataSeries(initial_value=None, ttl=ttl)
 
         for k, v in kwargs.items():
-            initial_value = None if v is None else float(v)
+            initial_value = None if v is None else int(v)
 
             data[str(k)] = DataSeries(initial_value=initial_value, ttl=ttl)
 
