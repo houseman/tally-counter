@@ -97,6 +97,24 @@ This is the time difference (in nanoseconds), between the first and the latest d
 
 ```
 
+### Adding or Subtracting
+The `incr()` method should be used to add positive counter values to a data series
+```python
+>>> my_count = Counter("my")
+>>> my_count.my.incr(1000)
+>>> my_count.my
+1000
+
+```
+
+To decrease a data series, use the `decr()` method
+```python
+>>> my_count.my.decr(100)
+>>> my_count.my
+900
+
+```
+
 ### Setting a TTL for counters
 It is possible to set a TTL (Time-To-Live) for a counter, through setting a `ttl` argument value in milliseconds.
 If this is set, then counters that exceed that TTL in age are discarded.
