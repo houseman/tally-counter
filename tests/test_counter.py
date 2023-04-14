@@ -1,11 +1,19 @@
 import pytest
 
 
-def test_init():
+def test_init_kwargs():
     from tally_counter import Counter
 
     counter = Counter(foo=100)
     assert counter.foo == 100
+
+
+def test_init_args():
+    from tally_counter import Counter
+
+    counter = Counter("bar", "baz")
+    assert counter.bar == 0
+    assert counter.baz == 0
 
 
 def test_constructor_given_no_attr():

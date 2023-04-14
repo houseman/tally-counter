@@ -15,7 +15,7 @@ This contrived sample counts numbers from 1 to 100. We count the following metri
 ```python
 >>> from tally_counter import Counter
 
->>> counter = Counter(numbers=None, naturals=None, odds=None, evens=None)
+>>> counter = Counter("numbers", "naturals", "odds", "evens")
 >>> for x in range(1, 101):  # 1..100 inclusive
 ...     counter.naturals.incr(x)
 ...     if x % 2:
