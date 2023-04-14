@@ -141,3 +141,12 @@ def test_len():
     data_series.incr()
 
     assert data_series.len() == 5
+
+
+def test_dump():
+    data_series = DataSeries()
+    data_series.incr(1022, timestamp=1000)
+    data_series.incr(1023, timestamp=1001)
+    data_series.incr(1024, timestamp=1002)
+
+    assert data_series.dump() == [(1022, 1000), (1023, 1001), (1024, 1002)]

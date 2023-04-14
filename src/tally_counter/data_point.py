@@ -28,3 +28,6 @@ class DataPoint:
         """
 
         return self.__timestamp
+
+    def dump(self) -> tuple[int, int]:
+        return (self.__value, self.__timestamp)

@@ -87,3 +87,14 @@ def test_through(kwargs):
     assert counter.all == 5050  # Sum of natural numbers 1 to 100
     assert counter.evens == 2500
     assert counter.odds == 2550
+
+
+def test_dump():
+    from tally_counter import Counter
+
+    counter = Counter("foo")
+    counter.foo.incr(1022, timestamp=1000)
+    counter.foo.incr(1023, timestamp=1001)
+    counter.foo.incr(1024, timestamp=1002)
+
+    assert counter.dump() == {"foo": [(1022, 1000), (1023, 1001), (1024, 1002)]}

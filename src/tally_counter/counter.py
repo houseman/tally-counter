@@ -30,8 +30,8 @@ class Counter:
         self.__data = init_data
         self.__ttl = ttl
 
-    def dump(self) -> dict[str, DataSeries]:
-        return self.__data
+    def dump(self) -> dict[str, list[tuple]]:
+        return {k: v.dump() for k, v in self.__data.items()}
 
     @property
     def ttl(self) -> int | None:

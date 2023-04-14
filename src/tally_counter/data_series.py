@@ -25,19 +25,20 @@ class DataSeries:
                     DataPoint(int(initial_value), time.monotonic_ns())
                 )
 
-    def incr(self, value: int = 1, /) -> None:
+    def incr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
         """
         Increment the count for this data series by default of `1` or specified `value`.
         """
 
-        if isinstance(value, int):
-            self._data_points.append(DataPoint(value, time.monotonic_ns()))
+        if timestamp is None:
+            timestamp = time.monotonic_ns()
 
-            return
-
-        raise TypeError(
-            f"incr() argument must be an integer, not '{value.__class__.__name__}'"
-        )
+        try:
+            self._data_points.append(DataPoint(int(value), timestamp))
+        except ValueError:
+            raise TypeError(
+                f"incr() argument must be an integer, not '{value.__class__.__name__}'"
+            )
 
     def average(self) -> float:
         """
@@ -66,6 +67,9 @@ class DataSeries:
         """
 
         return self._data_points[-1].timestamp - self._data_points[0].timestamp
+
+    def dump(self) -> list[tuple]:
+        return [dp.dump() for dp in self._data_points]
 
     @property
     def sum(self) -> int:
