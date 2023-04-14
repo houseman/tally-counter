@@ -15,13 +15,13 @@ class DataSeries:
         self, initial_value: int | DataPoint | None = None, /, *, ttl: int | None = None
     ) -> None:
         self.__ttl = ttl
-        self._data_points: list[DataPoint] = []
+        self.__data_points: list[DataPoint] = []
 
         if initial_value is not None:
             if isinstance(initial_value, DataPoint):
-                self._data_points.append(initial_value)
+                self.__data_points.append(initial_value)
             else:
-                self._data_points.append(
+                self.__data_points.append(
                     DataPoint(int(initial_value), time.monotonic_ns())
                 )
 
@@ -30,50 +30,65 @@ class DataSeries:
         Increment the count for this data series by default of `1` or specified `value`.
         """
 
-        if timestamp is None:
-            timestamp = time.monotonic_ns()
-
         try:
-            self._data_points.append(DataPoint(int(value), timestamp))
-        except ValueError:
+            self._append(abs(value), timestamp=timestamp)
+        except TypeError:
             raise TypeError(
                 f"incr() argument must be an integer, not '{value.__class__.__name__}'"
             )
+
+    def decr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
+        """
+        Decrement the count for this data series by default of `-1` or specified `value`
+        """
+
+        try:
+            self._append(-abs(value), timestamp=timestamp)
+        except TypeError:
+            raise TypeError(
+                f"decr() argument must be an integer, not '{value.__class__.__name__}'"
+            )
+
+    def _append(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
+        if timestamp is None:
+            timestamp = time.monotonic_ns()
+
+        self.__data_points.append(DataPoint(int(value), timestamp))
 
     def average(self) -> float:
         """
         Return the average float value for this data series
         """
 
-        return sum([dp.value for dp in self._data_points]) / len(self._data_points)
+        return sum([dp.value for dp in self.__data_points]) / len(self.__data_points)
 
     def len(self) -> int:
         """
         Return the length (number of data points) of this data series
         """
 
-        return len(self._data_points)
+        return len(self.__data_points)
 
     def age(self) -> int:
         """
         Return the age of this data series, in nanoseconds
         """
 
-        return time.monotonic_ns() - self._data_points[0].timestamp
+        return time.monotonic_ns() - self.__data_points[0].timestamp
 
     def span(self) -> int:
         """
         Return the time span of this data series, in nanoseconds
         """
 
-        return self._data_points[-1].timestamp - self._data_points[0].timestamp
+        return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
 
     def dump(self) -> list[tuple]:
-        return [dp.dump() for dp in self._data_points]
+        return [dp.dump() for dp in self.__data_points]
 
     @property
     def sum(self) -> int:
-        return sum([dp.value for dp in self._data_points])
+        return sum([dp.value for dp in self.__data_points])
 
     def _prune_data(self) -> None:
         """
@@ -86,7 +101,9 @@ class DataSeries:
         ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
         prune_ts = time.monotonic_ns() - ttl_in_ns
 
-        self._data_points = [dp for dp in self._data_points if dp.timestamp >= prune_ts]
+        self.__data_points = [
+            dp for dp in self.__data_points if dp.timestamp >= prune_ts
+        ]
 
     def __eq__(self, other: object) -> bool:
         """

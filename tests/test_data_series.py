@@ -52,9 +52,16 @@ def test_repr():
 
 def test_incr():
     data_series = DataSeries(1)
-    data_series.incr()
+    data_series.incr(-1)
     data_series.incr()
     assert data_series == 3
+
+
+def test_decr():
+    data_series = DataSeries(1)
+    data_series.decr(-1)
+    data_series.decr()
+    assert data_series == -1
 
 
 def test_incr_raises_type_error():
@@ -62,6 +69,13 @@ def test_incr_raises_type_error():
         TypeError, match=re.escape("incr() argument must be an integer, not 'str'")
     ):
         DataSeries().incr("foo")
+
+
+def test_decr_raises_type_error():
+    with pytest.raises(
+        TypeError, match=re.escape("decr() argument must be an integer, not 'str'")
+    ):
+        DataSeries().decr("foo")
 
 
 def test_average():
@@ -113,9 +127,9 @@ def test_prune_data_has_ttl(mocker):
 
     # Should prune anything < (6000000 - 2000000ns) == 4000000
     data_series._prune_data()
-    assert len(data_series._data_points) == 2
-    assert data_series._data_points[0].timestamp == 4000000
-    assert data_series._data_points[1].timestamp == 5000000
+    assert len(data_series.dump()) == 2
+    assert data_series.dump()[0] == (1, 4000000)
+    assert data_series.dump()[1] == (1, 5000000)
 
 
 def test_prune_data_no_ttl(mocker):
@@ -130,7 +144,7 @@ def test_prune_data_no_ttl(mocker):
 
     # Should prune nothing
     data_series._prune_data()
-    assert len(data_series._data_points) == 5
+    assert len(data_series.dump()) == 5
 
 
 def test_len():
