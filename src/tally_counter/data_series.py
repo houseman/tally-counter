@@ -7,8 +7,12 @@ from .data_point import DataPoint
 
 
 class DataSeries:
+    """
+    Represents a data series, a sequence of data points indexed in time order.
+    """
+
     def __init__(
-        self, initial_value: int | DataPoint | None = None, *, ttl: int | None = None
+        self, initial_value: int | DataPoint | None = None, /, *, ttl: int | None = None
     ) -> None:
         self.__ttl = ttl
         self._data_points: list[DataPoint] = []
@@ -21,7 +25,7 @@ class DataSeries:
                     DataPoint(int(initial_value), time.monotonic_ns())
                 )
 
-    def incr(self, value: int = 1) -> None:
+    def incr(self, value: int = 1, /) -> None:
         """
         Increment the count for this data series by default of `1` or specified `value`.
         """

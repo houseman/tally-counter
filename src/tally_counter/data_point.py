@@ -2,9 +2,16 @@ from __future__ import annotations
 
 
 class DataPoint:
-    def __init__(self, value: int, ts: int) -> None:
+    """
+    Represents a data point, which is a single integer value within a data series.
+
+    A data point typically represents a single measurement, taken at a specified time
+    point.
+    """
+
+    def __init__(self, value: int, timestamp: int) -> None:
         self.__value = int(value)
-        self.__ts = int(ts)
+        self.__timestamp = int(timestamp)
 
     @property
     def value(self) -> int:
@@ -20,4 +27,4 @@ class DataPoint:
         This data point's monotonic timestamp
         """
 
-        return self.__ts
+        return self.__timestamp

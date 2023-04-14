@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 from typing import Any
 
 from .data_series import DataSeries
 
 
 class Counter:
+    """
+    Represents a container for any number of named data series.
+    """
+
     def __init__(self, *args: str, **kwargs: int) -> None:
         try:
             ttl = int(kwargs.pop("ttl"))
@@ -12,26 +18,33 @@ class Counter:
         except ValueError:
             raise TypeError("'int' expected for argument 'ttl'")
 
-        data = {}
+        init_data: dict[str, DataSeries] = {}
         for k in args:
-            data[str(k)] = DataSeries(initial_value=None, ttl=ttl)
+            init_data[str(k)] = DataSeries(None, ttl=ttl)
 
         for k, v in kwargs.items():
             initial_value = None if v is None else int(v)
 
-            data[str(k)] = DataSeries(initial_value=initial_value, ttl=ttl)
+            init_data[str(k)] = DataSeries(initial_value, ttl=ttl)
 
-        self._data = data
-        self._ttl = ttl
+        self.__data = init_data
+        self.__ttl = ttl
+
+    def dump(self) -> dict[str, DataSeries]:
+        return self.__data
+
+    @property
+    def ttl(self) -> int | None:
+        return self.__ttl
 
     def __getattr__(self, name: str) -> Any:
         """
         Called when an attribute lookup has not found the attribute in the usual places
         """
 
-        data_series = self._data.get(name)
+        data_series = self.__data.get(name)
         if not data_series:
-            data_series = DataSeries(initial_value=None, ttl=self._ttl)
-            self._data[name] = data_series
+            data_series = DataSeries(None, ttl=self.__ttl)
+            self.__data[name] = data_series
 
         return data_series

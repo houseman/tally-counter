@@ -20,14 +20,15 @@ def test_constructor_given_no_attr():
     from tally_counter import Counter
 
     counter = Counter()
-    assert counter._data == {}
+    assert counter.dump() == {}
 
 
 def test_ttl_attr():
     from tally_counter import Counter
 
-    counter = Counter(ttl=3600)
-    assert counter._ttl == 3600
+    assert Counter(ttl=3600).ttl == 3600
+
+    assert Counter().ttl is None
 
 
 def test_invalid_ttl_attr():

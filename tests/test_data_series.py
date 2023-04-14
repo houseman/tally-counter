@@ -59,9 +59,9 @@ def test_incr():
 
 def test_incr_raises_type_error():
     with pytest.raises(
-        TypeError, match=re.escape("incr() argument must be a number, not 'str'")
+        TypeError, match=re.escape("incr() argument must be an integer, not 'str'")
     ):
-        DataSeries(1).incr("foo")
+        DataSeries().incr("foo")
 
 
 def test_average():
@@ -105,11 +105,11 @@ def test_prune_data_has_ttl(mocker):
     )
 
     data_series = DataSeries(ttl=2)  # ttl=2ms == 2000000ns
-    data_series.incr()  # ts == 1000000
-    data_series.incr()  # ts == 2000000
-    data_series.incr()  # ts == 3000000
-    data_series.incr()  # ts == 4000000
-    data_series.incr()  # ts == 5000000
+    data_series.incr()  # timestamp == 1000000
+    data_series.incr()  # timestamp == 2000000
+    data_series.incr()  # timestamp == 3000000
+    data_series.incr()  # timestamp == 4000000
+    data_series.incr()  # timestamp == 5000000
 
     # Should prune anything < (6000000 - 2000000ns) == 4000000
     data_series._prune_data()
