@@ -1,9 +1,6 @@
-from dataclasses import dataclass
-
 from .data_series import DataSeries
 
 
-@dataclass
 class Counter:
     def __init__(self, **kwargs: float) -> None:
         try:
