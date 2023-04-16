@@ -33,7 +33,10 @@ dev = [
   # Test dependencies
   "pytest",
   "pytest-cov[all]",
-  "pytest-mock"
+  "pytest-mock",
+
+  # PyPI
+  "twine"
 ]
 
 [project.urls]
