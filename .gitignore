@@ -130,3 +130,6 @@ dmypy.json
 
 # VSCode
 .vscode/
+
+# setuptools_scm
+src/*/_version.py

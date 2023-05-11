@@ -1,6 +1,7 @@
 [project]
 name = "tally-counter"
-version = "0.0.1"
+# version = "0.0.0" # setuptools_scm extracts the version number from the project’s git tags during the build process
+dynamic = ["version"]
 authors = [
   { name="Scott Houseman", email="scott.houseman@gmail.com" },
 ]
@@ -44,7 +45,8 @@ repository = "https://github.com/houseman/tally-counter"
 
 [build-system]
 requires = [
-  "setuptools"
+  "setuptools>=45",
+  "setuptools_scm[toml]>=6.2"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -56,6 +58,9 @@ include = [
   "tally_counter*"
 ]
 namespaces = false
+
+[tool.setuptools_scm]
+write_to = "src/tally_counter/_version.py"
 
 [tool.isort]
 profile = "black"
