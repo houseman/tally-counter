@@ -1,7 +1,9 @@
 import nox
 
+SUPPORTED_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 
-@nox.session(python=["3.8", "3.9", "3.10", "3.11"])
+
+@nox.session(python=SUPPORTED_PYTHON_VERSIONS)
 def tests(session):
     session.install("pip-tools")
     session.run(
@@ -39,11 +41,7 @@ def tests(session):
     )
 
 
-@nox.session(python="3.8")
+@nox.session(python=SUPPORTED_PYTHON_VERSIONS)
 def lint(session):
     session.install("pre-commit")
-    session.run(
-        "pre-commit",
-        "run",
-        "--all",
-    )
+    session.run("pre-commit", "run", "--all", env={"SKIP": "pytest-check"})

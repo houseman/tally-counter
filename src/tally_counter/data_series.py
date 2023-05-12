@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import threading
 import time
 
 from .data_point import DataPoint
@@ -14,16 +15,18 @@ class DataSeries:
     def __init__(
         self, initial_value: int | DataPoint | None = None, /, *, ttl: int | None = None
     ) -> None:
+        self.__lock = threading.RLock()
         self.__ttl = ttl
         self.__data_points: list[DataPoint] = []
 
         if initial_value is not None:
-            if isinstance(initial_value, DataPoint):
-                self.__data_points.append(initial_value)
-            else:
-                self.__data_points.append(
-                    DataPoint(int(initial_value), time.monotonic_ns())
-                )
+            with self.__lock:
+                if isinstance(initial_value, DataPoint):
+                    self.__data_points.append(initial_value)
+                else:
+                    self.__data_points.append(
+                        DataPoint(int(initial_value), time.monotonic_ns())
+                    )
 
     def incr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
         """
@@ -53,21 +56,26 @@ class DataSeries:
         if timestamp is None:
             timestamp = time.monotonic_ns()
 
-        self.__data_points.append(DataPoint(int(value), timestamp))
+        with self.__lock:
+            self.__data_points.append(DataPoint(int(value), timestamp))
 
     def average(self) -> float:
         """
         Return the average float value for this data series
         """
 
-        return sum([dp.value for dp in self.__data_points]) / len(self.__data_points)
+        with self.__lock:
+            return sum([dp.value for dp in self.__data_points]) / len(
+                self.__data_points
+            )
 
     def len(self) -> int:
         """
         Return the length (number of data points) of this data series
         """
 
-        return len(self.__data_points)
+        with self.__lock:
+            return len(self.__data_points)
 
     def age(self) -> int:
         """
@@ -81,29 +89,33 @@ class DataSeries:
         Return the time span of this data series, in nanoseconds
         """
 
-        return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
+        with self.__lock:
+            return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
 
     def dump(self) -> list[tuple]:
-        return [dp.dump() for dp in self.__data_points]
+        with self.__lock:
+            return [dp.dump() for dp in self.__data_points]
 
     @property
     def sum(self) -> int:
-        return sum([dp.value for dp in self.__data_points])
+        with self.__lock:
+            return sum([dp.value for dp in self.__data_points])
 
     def _prune_data(self) -> None:
         """
         Prune data that has passed TTL from series, if a TTL is specified.
         """
 
-        if not self.__ttl:
-            return None
+        with self.__lock:
+            if not self.__ttl:
+                return None
 
-        ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
-        prune_ts = time.monotonic_ns() - ttl_in_ns
+            ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
+            prune_ts = time.monotonic_ns() - ttl_in_ns
 
-        self.__data_points = [
-            dp for dp in self.__data_points if dp.timestamp >= prune_ts
-        ]
+            self.__data_points = [
+                dp for dp in self.__data_points if dp.timestamp >= prune_ts
+            ]
 
     def __eq__(self, other: object) -> bool:
         """

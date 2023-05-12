@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import threading
+
 
 class DataPoint:
     """
@@ -10,6 +12,7 @@ class DataPoint:
     """
 
     def __init__(self, value: int, timestamp: int) -> None:
+        self.__lock = threading.RLock()
         self.__value = int(value)
         self.__timestamp = int(timestamp)
 
@@ -19,7 +22,8 @@ class DataPoint:
         This data point's integer value
         """
 
-        return self.__value
+        with self.__lock:
+            return self.__value
 
     @property
     def timestamp(self) -> int:
@@ -27,7 +31,9 @@ class DataPoint:
         This data point's monotonic timestamp
         """
 
-        return self.__timestamp
+        with self.__lock:
+            return self.__timestamp
 
     def dump(self) -> tuple[int, int]:
-        return (self.__value, self.__timestamp)
+        with self.__lock:
+            return (self.__value, self.__timestamp)

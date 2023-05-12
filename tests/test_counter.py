@@ -1,3 +1,5 @@
+import threading
+
 import pytest
 
 
@@ -98,3 +100,45 @@ def test_dump():
     counter.foo.incr(1024, timestamp=1002)
 
     assert counter.dump() == {"foo": [(1022, 1000), (1023, 1001), (1024, 1002)]}
+
+
+@pytest.fixture()
+def patch_time(mocker):
+    ...
+
+
+def test_thread_safety(patch_time):
+    from tally_counter import Counter
+
+    # Define a function that will be executed by each thread
+    def thread_function(counter: Counter, fr: int, to: int):
+        for _ in range(fr, to + 1):
+            counter.cnt.incr()
+
+    counter = Counter(cnt=0)
+
+    # Create two threads that will access the shared instance
+    thread_1 = threading.Thread(
+        target=thread_function, kwargs={"counter": counter, "fr": 1, "to": 10000}
+    )
+    thread_2 = threading.Thread(
+        target=thread_function, kwargs={"counter": counter, "fr": 10001, "to": 20000}
+    )
+    thread_3 = threading.Thread(
+        target=thread_function, kwargs={"counter": counter, "fr": 20001, "to": 30000}
+    )
+
+    # Start the threads
+    thread_1.start()
+    thread_2.start()
+    thread_3.start()
+
+    # Wait for both threads to complete
+    thread_1.join()
+    thread_2.join()
+    thread_3.join()
+
+    thread_function(counter=counter, fr=1, to=200000)
+
+    # Check if the shared property has the expected value
+    assert counter.cnt.len() == 230001

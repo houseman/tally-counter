@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from typing import Any
 
 from .data_series import DataSeries
@@ -11,6 +12,9 @@ class Counter:
     """
 
     def __init__(self, *args: str, **kwargs: int) -> None:
+        # Thread safety lock
+        self.__lock = threading.RLock()
+
         try:
             ttl = int(kwargs.pop("ttl"))
         except KeyError:
@@ -27,24 +31,28 @@ class Counter:
 
             init_data[str(k)] = DataSeries(initial_value, ttl=ttl)
 
-        self.__data = init_data
-        self.__ttl = ttl
+        with self.__lock:
+            self.__data = init_data
+            self.__ttl = ttl
 
     def dump(self) -> dict[str, list[tuple]]:
-        return {k: v.dump() for k, v in self.__data.items()}
+        with self.__lock:
+            return {k: v.dump() for k, v in self.__data.items()}
 
     @property
     def ttl(self) -> int | None:
-        return self.__ttl
+        with self.__lock:
+            return self.__ttl
 
     def __getattr__(self, name: str) -> Any:
         """
         Called when an attribute lookup has not found the attribute in the usual places
         """
 
-        data_series = self.__data.get(name)
-        if not data_series:
-            data_series = DataSeries(None, ttl=self.__ttl)
-            self.__data[name] = data_series
+        with self.__lock:
+            data_series = self.__data.get(name)
+            if not data_series:
+                data_series = DataSeries(None, ttl=self.__ttl)
+                self.__data[name] = data_series
 
-        return data_series
+            return data_series
