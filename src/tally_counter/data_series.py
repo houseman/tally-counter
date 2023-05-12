@@ -13,10 +13,16 @@ class DataSeries:
     """
 
     def __init__(
-        self, initial_value: int | DataPoint | None = None, /, *, ttl: int | None = None
+        self,
+        initial_value: int | DataPoint | None = None,
+        /,
+        *,
+        ttl: int | None = None,
+        maxlen: int | None = None,
     ) -> None:
         self.__lock = threading.RLock()
         self.__ttl = ttl
+        self.__maxlen = maxlen
         self.__data_points: list[DataPoint] = []
 
         if initial_value is not None:
@@ -58,6 +64,7 @@ class DataSeries:
 
         with self.__lock:
             self.__data_points.append(DataPoint(int(value), timestamp))
+            self._prune_data()
 
     def average(self) -> float:
         """
@@ -107,15 +114,18 @@ class DataSeries:
         """
 
         with self.__lock:
-            if not self.__ttl:
-                return None
+            # Prune by age
+            if self.__ttl:
+                ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
+                prune_ts = time.monotonic_ns() - ttl_in_ns
 
-            ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
-            prune_ts = time.monotonic_ns() - ttl_in_ns
+                self.__data_points = [
+                    dp for dp in self.__data_points if dp.timestamp >= prune_ts
+                ]
 
-            self.__data_points = [
-                dp for dp in self.__data_points if dp.timestamp >= prune_ts
-            ]
+            # Prune length
+            if self.__maxlen and len(self.__data_points) > self.__maxlen:
+                self.__data_points = self.__data_points[-self.__maxlen :]
 
     def __eq__(self, other: object) -> bool:
         """
