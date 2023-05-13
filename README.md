@@ -125,6 +125,20 @@ This may be useful for things such as rate limits (a use case where counts shoul
 
 ```
 
+### Setting a maximum series length
+
+```python
+>>> l_counter = Counter("latest", maxlen=100)
+>>> for i in range(0, 1000):
+...     l_counter.latest.incr(i)
+...
+>>> l_counter.latest.len()
+100
+>>> l_counter.latest
+94950
+
+```
+
 ### Setting an initial value for counters
 It is possible to create the counters and set an initial data point at once
 ```python

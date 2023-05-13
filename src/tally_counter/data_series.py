@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import threading
 import time
 
@@ -9,7 +8,7 @@ from .data_point import DataPoint
 
 class DataSeries:
     """
-    Represents a data series, a sequence of data points indexed in time order.
+    Represents a data series, a linear sequence of data points, ordered by point in time
     """
 
     def __init__(
@@ -20,19 +19,17 @@ class DataSeries:
         ttl: int | None = None,
         maxlen: int | None = None,
     ) -> None:
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
         self.__ttl = ttl
         self.__maxlen = maxlen
         self.__data_points: list[DataPoint] = []
 
         if initial_value is not None:
-            with self.__lock:
+            with self._lock:
                 if isinstance(initial_value, DataPoint):
-                    self.__data_points.append(initial_value)
+                    self._append(initial_value.value, timestamp=initial_value.timestamp)
                 else:
-                    self.__data_points.append(
-                        DataPoint(int(initial_value), time.monotonic_ns())
-                    )
+                    self._append(int(initial_value), timestamp=time.monotonic_ns())
 
     def incr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
         """
@@ -59,61 +56,71 @@ class DataSeries:
             )
 
     def _append(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
+        """
+        This should be the only function that mutates (appends to) the data points list
+        """
+
         if timestamp is None:
             timestamp = time.monotonic_ns()
 
-        with self.__lock:
+        with self._lock:
             self.__data_points.append(DataPoint(int(value), timestamp))
-            self._prune_data()
+            self._prune()  # Pruned after adding data
 
     def average(self) -> float:
         """
         Return the average float value for this data series
         """
 
-        with self.__lock:
-            return sum([dp.value for dp in self.__data_points]) / len(
-                self.__data_points
-            )
+        with self._lock:
+            data_points = self._pruned()
+            return sum([dp.value for dp in data_points]) / len(data_points)
 
     def len(self) -> int:
         """
         Return the length (number of data points) of this data series
         """
 
-        with self.__lock:
-            return len(self.__data_points)
+        with self._lock:
+            return len(self._pruned())
 
     def age(self) -> int:
         """
         Return the age of this data series, in nanoseconds
         """
 
-        return time.monotonic_ns() - self.__data_points[0].timestamp
+        return time.monotonic_ns() - self._pruned()[0].timestamp
 
     def span(self) -> int:
         """
-        Return the time span of this data series, in nanoseconds
+        Return the time span of this data series, in nanoseconds.
+
+        This is the time difference between the earliest and latest data points in the
+        series.
         """
 
-        with self.__lock:
-            return self.__data_points[-1].timestamp - self.__data_points[0].timestamp
+        with self._lock:
+            data_points = self._pruned()
 
-    def dump(self) -> list[tuple]:
-        with self.__lock:
-            return [dp.dump() for dp in self.__data_points]
+            return data_points[-1].timestamp - data_points[0].timestamp
+
+    def dump(self) -> list[tuple[int, int]]:
+        with self._lock:
+            return [dp.dump() for dp in self._pruned()]
 
     @property
     def sum(self) -> int:
-        with self.__lock:
-            return sum([dp.value for dp in self.__data_points])
+        with self._lock:
+            return sum([dp.value for dp in self._pruned()])
 
-    def _prune_data(self) -> None:
+    def _prune(self) -> None:
         """
-        Prune data that has passed TTL from series, if a TTL is specified.
+        Prune data from the series, that has
+        - passed TTL from series, if a TTL is specified. Or,
+        - exceeds the maximum series length, ordered by time descending
         """
 
-        with self.__lock:
+        with self._lock:
             # Prune by age
             if self.__ttl:
                 ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
@@ -127,6 +134,10 @@ class DataSeries:
             if self.__maxlen and len(self.__data_points) > self.__maxlen:
                 self.__data_points = self.__data_points[-self.__maxlen :]
 
+    def _pruned(self) -> list[DataPoint]:
+        self._prune
+        return self.__data_points
+
     def __eq__(self, other: object) -> bool:
         """
         Overloads the `==` operator.
@@ -139,7 +150,7 @@ class DataSeries:
             return self.sum == other.sum
 
         if isinstance(other, int):
-            return math.isclose(self.sum, other)
+            return self.sum == other
 
         return False
 

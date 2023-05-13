@@ -13,7 +13,7 @@ class Counter:
 
     def __init__(self, *args: str, **kwargs: int) -> None:
         # Thread safety lock
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
 
         ttl = self._get_int_from_kwargs(kwargs, "ttl")
         maxlen = self._get_int_from_kwargs(kwargs, "maxlen")
@@ -27,18 +27,18 @@ class Counter:
 
             init_data[str(k)] = DataSeries(initial_value, ttl=ttl, maxlen=maxlen)
 
-        with self.__lock:
+        with self._lock:
             self.__data = init_data
             self.__ttl = ttl
             self.__maxlen = maxlen
 
-    def dump(self) -> dict[str, list[tuple]]:
-        with self.__lock:
+    def dump(self) -> dict[str, list[tuple[int, int]]]:
+        with self._lock:
             return {k: v.dump() for k, v in self.__data.items()}
 
     @property
     def ttl(self) -> int | None:
-        with self.__lock:
+        with self._lock:
             return self.__ttl
 
     def __getattr__(self, name: str) -> Any:
@@ -46,7 +46,7 @@ class Counter:
         Called when an attribute lookup has not found the attribute in the usual places
         """
 
-        with self.__lock:
+        with self._lock:
             data_series = self.__data.get(name)
             if not data_series:
                 data_series = DataSeries(None, ttl=self.__ttl, maxlen=self.__maxlen)

@@ -112,7 +112,7 @@ def test_time_spam(mocker):
     assert data_series.span() == 3  # 1004 - 1001
 
 
-def test_prune_data_has_maxlen(mocker):
+def test_prune_has_maxlen(mocker):
     mocker.patch(
         "time.monotonic_ns",
         side_effect=[i * 1000 for i in range(1, 1001)],
@@ -128,7 +128,7 @@ def test_prune_data_has_maxlen(mocker):
     assert data_series.dump()[99] == (1000, 1000000)
 
 
-def test_prune_data_has_ttl(mocker):
+def test_prune_has_ttl(mocker):
     mocker.patch(
         "time.monotonic_ns",
         side_effect=[i * 10000 for i in range(1, 2001)],
@@ -143,7 +143,7 @@ def test_prune_data_has_ttl(mocker):
     assert data_series.dump()[99] == (1000, 19990000)
 
 
-def test_prune_data_no_ttl(mocker):
+def test_prune_no_ttl(mocker):
     mocker.patch("time.monotonic_ns", side_effect=[1, 2, 3, 4, 5])
 
     data_series = DataSeries()
@@ -154,7 +154,7 @@ def test_prune_data_no_ttl(mocker):
     data_series.incr()
 
     # Should prune nothing
-    data_series._prune_data()
+    data_series._prune()
     assert len(data_series.dump()) == 5
 
 
