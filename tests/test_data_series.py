@@ -98,12 +98,29 @@ def test_average(data_series):
     assert math.isclose(data_series.average(), 573230499.8333334)
 
 
+def test_average_p95(data_series):
+    data_series = DataSeries()
+    for i in range(1, 1001):
+        data_series.incr(i)
+
+    expected = sum(range(1, 951)) / 950
+    assert math.isclose(data_series.average(95), expected)
+
+
 def test_min(data_series):
     assert data_series.min() == -6548794
 
 
 def test_max(data_series):
     assert data_series.max() == 3445453656
+
+
+def test_max_p95():
+    data_series = DataSeries()
+    for i in range(1, 1001):
+        data_series.incr(i)
+
+    assert data_series.max(95) == 950
 
 
 def test_age(mocker):
@@ -141,24 +158,23 @@ def test_prune_has_maxlen(mocker):
         data_series.incr(i)
 
     # Should prune length to 100
-    assert len(data_series.dump()) == 100
+    assert data_series.len() == 100
     assert data_series.dump()[0] == (901, 901000)
-    assert data_series.dump()[99] == (1000, 1000000)
+    assert data_series.dump()[-1] == (1000, 1000000)
 
 
 def test_prune_has_ttl(mocker):
     mocker.patch(
         "time.monotonic_ns",
-        side_effect=[i * 10000 for i in range(1, 2001)],
+        side_effect=[i * 10000 for i in range(1, 4000)],
     )
 
     data_series = DataSeries(ttl=2)  # ttl=2ms == 2000000ns
     for i in range(1, 1001):
         data_series.incr(i)
 
-    assert len(data_series.dump()) == 100
     assert data_series.dump()[0] == (901, 18010000)
-    assert data_series.dump()[99] == (1000, 19990000)
+    assert data_series.dump()[-1] == (1000, 19990000)
 
 
 def test_prune_no_ttl(mocker):
@@ -193,3 +209,8 @@ def test_dump():
     data_series.incr(1024, timestamp=1002)
 
     assert data_series.dump() == [(1022, 1000), (1023, 1001), (1024, 1002)]
+
+
+def test_get_percentile_exception(data_series):
+    with pytest.raises(ValueError):
+        data_series._get_percentile(data_series._pruned(), 100)
