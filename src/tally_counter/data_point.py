@@ -12,7 +12,7 @@ class DataPoint:
     """
 
     def __init__(self, value: int, timestamp: int) -> None:
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
         self.__value = int(value)
         self.__timestamp = int(timestamp)
 
@@ -22,7 +22,7 @@ class DataPoint:
         This data point's integer value
         """
 
-        with self.__lock:
+        with self._lock:
             return self.__value
 
     @property
@@ -31,9 +31,9 @@ class DataPoint:
         This data point's monotonic timestamp
         """
 
-        with self.__lock:
+        with self._lock:
             return self.__timestamp
 
     def dump(self) -> tuple[int, int]:
-        with self.__lock:
+        with self._lock:
             return (self.__value, self.__timestamp)

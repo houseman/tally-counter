@@ -1,3 +1,4 @@
+import math
 import re
 
 import pytest
@@ -51,17 +52,19 @@ def test_repr():
 
 
 def test_incr():
-    data_series = DataSeries(1)
-    data_series.incr(-1)
-    data_series.incr()
-    assert data_series == 3
+    data_series = DataSeries(100)
+    data_series.incr(-10)  # +(-10) == -10
+    data_series.incr(10)  # +(+10) == +10
+    data_series.incr()  # +(+1) == +1
+    assert data_series == 101
 
 
 def test_decr():
-    data_series = DataSeries(1)
-    data_series.decr(-1)
-    data_series.decr()
-    assert data_series == -1
+    data_series = DataSeries(100)
+    data_series.decr(-10)  # -(-10) == +10
+    data_series.decr(10)  # -(+10) == -10
+    data_series.decr()  # -(+1) == -1
+    assert data_series == 99
 
 
 def test_incr_raises_type_error():
@@ -78,14 +81,29 @@ def test_decr_raises_type_error():
         DataSeries().decr("foo")
 
 
-def test_average():
+@pytest.fixture
+def data_series():
     data_series = DataSeries()
     data_series.incr(13456)
     data_series.incr(10234)
     data_series.incr(454545)
+    data_series.decr(6548794)
     data_series.incr(3445453656)
+    data_series.decr(101)
 
-    assert data_series.average() == 861482972.75
+    return data_series
+
+
+def test_average(data_series):
+    assert math.isclose(data_series.average(), 573230499.8333334)
+
+
+def test_min(data_series):
+    assert data_series.min() == -6548794
+
+
+def test_max(data_series):
+    assert data_series.max() == 3445453656
 
 
 def test_age(mocker):
@@ -112,27 +130,38 @@ def test_time_spam(mocker):
     assert data_series.span() == 3  # 1004 - 1001
 
 
-def test_prune_data_has_ttl(mocker):
+def test_prune_has_maxlen(mocker):
     mocker.patch(
         "time.monotonic_ns",
-        side_effect=[1000000, 2000000, 3000000, 4000000, 5000000, 6000000],
+        side_effect=[i * 1000 for i in range(1, 1001)],
+    )
+
+    data_series = DataSeries(maxlen=100)
+    for i in range(1, 1001):
+        data_series.incr(i)
+
+    # Should prune length to 100
+    assert len(data_series.dump()) == 100
+    assert data_series.dump()[0] == (901, 901000)
+    assert data_series.dump()[99] == (1000, 1000000)
+
+
+def test_prune_has_ttl(mocker):
+    mocker.patch(
+        "time.monotonic_ns",
+        side_effect=[i * 10000 for i in range(1, 2001)],
     )
 
     data_series = DataSeries(ttl=2)  # ttl=2ms == 2000000ns
-    data_series.incr()  # timestamp == 1000000
-    data_series.incr()  # timestamp == 2000000
-    data_series.incr()  # timestamp == 3000000
-    data_series.incr()  # timestamp == 4000000
-    data_series.incr()  # timestamp == 5000000
+    for i in range(1, 1001):
+        data_series.incr(i)
 
-    # Should prune anything < (6000000 - 2000000ns) == 4000000
-    data_series._prune_data()
-    assert len(data_series.dump()) == 2
-    assert data_series.dump()[0] == (1, 4000000)
-    assert data_series.dump()[1] == (1, 5000000)
+    assert len(data_series.dump()) == 100
+    assert data_series.dump()[0] == (901, 18010000)
+    assert data_series.dump()[99] == (1000, 19990000)
 
 
-def test_prune_data_no_ttl(mocker):
+def test_prune_no_ttl(mocker):
     mocker.patch("time.monotonic_ns", side_effect=[1, 2, 3, 4, 5])
 
     data_series = DataSeries()
@@ -143,7 +172,7 @@ def test_prune_data_no_ttl(mocker):
     data_series.incr()
 
     # Should prune nothing
-    data_series._prune_data()
+    data_series._prune()
     assert len(data_series.dump()) == 5
 
 

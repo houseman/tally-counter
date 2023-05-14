@@ -71,6 +71,25 @@ These metrics are now available to us
 50.0
 
 ```
+
+### Minimum odd and even number in range 1 to 100
+```python
+>>> counter.odds.min()
+1
+>>> counter.evens.min()
+2
+
+```
+
+### Maximum odd and even number in range 1 to 100
+```python
+>>> counter.odds.max()
+99
+>>> counter.evens.max()
+100
+
+```
+
 ### Length (number of data points in) of a data series
 ```python
 >>> counter.numbers.len()
@@ -122,6 +141,20 @@ This may be useful for things such as rate limits (a use case where counts shoul
 
 ```python
 >>> r_counter = Counter("requests", ttl=60000)  # Count requests for the past minute
+
+```
+
+### Setting a maximum series length
+
+```python
+>>> l_counter = Counter("latest", maxlen=100)
+>>> for i in range(0, 1000):
+...     l_counter.latest.incr(i)
+...
+>>> l_counter.latest.len()
+100
+>>> l_counter.latest
+94950
 
 ```
 
