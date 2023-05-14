@@ -55,15 +55,15 @@ These metrics are now available to us
 
 ```
 
-### Average
+### Mean
 ```python
->>> counter.naturals.average()  # Returns a float type
+>>> counter.naturals.mean()  # Returns a float type
 50.5
->>> counter.naturals.average(percentile=50)  # Supports percentiles
+>>> counter.naturals.mean(percentile=50)  # Supports percentiles
 25.0
->>> counter.evens.average()
+>>> counter.evens.mean()
 51.0
->>> counter.odds.average()
+>>> counter.odds.mean()
 50.0
 
 ```

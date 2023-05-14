@@ -94,17 +94,17 @@ def data_series():
     return data_series
 
 
-def test_average(data_series):
-    assert math.isclose(data_series.average(), 573230499.8333334)
+def test_mean(data_series):
+    assert math.isclose(data_series.mean(), 573230499.8333334)
 
 
-def test_average_p95(data_series):
+def test_mean_p95(data_series):
     data_series = DataSeries()
     for i in range(1, 1001):
         data_series.incr(i)
 
     expected = sum(range(1, 950)) / 949
-    assert math.isclose(data_series.average(95), expected)
+    assert math.isclose(data_series.mean(95), expected)
 
 
 def test_min(data_series):

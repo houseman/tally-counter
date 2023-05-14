@@ -68,9 +68,9 @@ class DataSeries:
             self.__data_points.append(DataPoint(int(value), timestamp))
             self._prune()  # Pruned after adding data
 
-    def average(self, percentile: int = 0) -> float:
+    def mean(self, percentile: int = 0) -> float:
         """
-        Return the average float value for this data series
+        Return the mean float value for this data series
         """
 
         with self._lock:
