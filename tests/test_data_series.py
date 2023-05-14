@@ -1,3 +1,4 @@
+import math
 import re
 
 import pytest
@@ -51,17 +52,19 @@ def test_repr():
 
 
 def test_incr():
-    data_series = DataSeries(1)
-    data_series.incr(-1)
-    data_series.incr()
-    assert data_series == 3
+    data_series = DataSeries(100)
+    data_series.incr(-10)  # +(-10) == -10
+    data_series.incr(10)  # +(+10) == +10
+    data_series.incr()  # +(+1) == +1
+    assert data_series == 101
 
 
 def test_decr():
-    data_series = DataSeries(1)
-    data_series.decr(-1)
-    data_series.decr()
-    assert data_series == -1
+    data_series = DataSeries(100)
+    data_series.decr(-10)  # -(-10) == +10
+    data_series.decr(10)  # -(+10) == -10
+    data_series.decr()  # -(+1) == -1
+    assert data_series == 99
 
 
 def test_incr_raises_type_error():
@@ -78,14 +81,29 @@ def test_decr_raises_type_error():
         DataSeries().decr("foo")
 
 
-def test_average():
+@pytest.fixture
+def data_series():
     data_series = DataSeries()
     data_series.incr(13456)
     data_series.incr(10234)
     data_series.incr(454545)
+    data_series.decr(6548794)
     data_series.incr(3445453656)
+    data_series.decr(101)
 
-    assert data_series.average() == 861482972.75
+    return data_series
+
+
+def test_average(data_series):
+    assert math.isclose(data_series.average(), 573230499.8333334)
+
+
+def test_min(data_series):
+    assert data_series.min() == -6548794
+
+
+def test_max(data_series):
+    assert data_series.max() == 3445453656
 
 
 def test_age(mocker):

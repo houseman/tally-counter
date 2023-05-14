@@ -37,7 +37,7 @@ class DataSeries:
         """
 
         try:
-            self._append(abs(value), timestamp=timestamp)
+            self._append(+(value), timestamp=timestamp)
         except TypeError:
             raise TypeError(
                 f"incr() argument must be an integer, not '{value.__class__.__name__}'"
@@ -49,7 +49,7 @@ class DataSeries:
         """
 
         try:
-            self._append(-abs(value), timestamp=timestamp)
+            self._append(-(value), timestamp=timestamp)
         except TypeError:
             raise TypeError(
                 f"decr() argument must be an integer, not '{value.__class__.__name__}'"
@@ -75,6 +75,24 @@ class DataSeries:
         with self._lock:
             data_points = self._pruned()
             return sum([dp.value for dp in data_points]) / len(data_points)
+
+    def min(self) -> int:
+        """
+        Return the minimum value for this data series
+        """
+
+        with self._lock:
+            data_points = self._pruned()
+            return min([dp.value for dp in data_points])
+
+    def max(self) -> int:
+        """
+        Return the maximum value for this data series
+        """
+
+        with self._lock:
+            data_points = self._pruned()
+            return max([dp.value for dp in data_points])
 
     def len(self) -> int:
         """
