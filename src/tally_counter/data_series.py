@@ -174,9 +174,9 @@ class DataSeries:
 
         with self._lock:
             size = len(data_points)  # Length of the data series
-            percentile_point = math.ceil(size * (percentile / 100))  # percentile point
+            percentile_point = math.floor(size * (percentile / 100))  # percentile point
 
-            return data_points[0:percentile_point]
+            return data_points[0 : percentile_point - 1]
 
     def __eq__(self, other: object) -> bool:
         """

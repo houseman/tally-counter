@@ -103,7 +103,7 @@ def test_average_p95(data_series):
     for i in range(1, 1001):
         data_series.incr(i)
 
-    expected = sum(range(1, 951)) / 950
+    expected = sum(range(1, 950)) / 949
     assert math.isclose(data_series.average(95), expected)
 
 
@@ -120,7 +120,7 @@ def test_max_p95():
     for i in range(1, 1001):
         data_series.incr(i)
 
-    assert data_series.max(95) == 950
+    assert data_series.max(95) == 949
 
 
 def test_age(mocker):

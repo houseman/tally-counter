@@ -1,9 +1,10 @@
 # tally-counter
 A Python tally counter class
 
-![Supported Python version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
-![Code Style](https://img.shields.io/badge/style-black-brightgreen)
+![python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
+![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
 ![Linting](https://img.shields.io/badge/linting-flake8%20%7C%20isort%20%7C%20mypy-yellowgreen)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 ## Usage
 This contrived sample counts numbers from 1 to 100. We count the following metrics
@@ -32,47 +33,42 @@ These metrics are now available to us
 ```python
 >>> counter.naturals
 5050
+>>> counter.naturals.sum
+5050
 
 ```
 ### Count of all natural numbers from 1 to 100
 ```python
 >>> counter.numbers
 100
+>>> counter.numbers.sum
+100
 
 ```
 
-### Sum of all even numbers in range 1 to 100
+### Sum
 ```python
 >>> counter.evens
 2550
-
-```
-### Sum of all odd numbers in range 1 to 100
-```python
 >>> counter.odds
 2500
 
 ```
-### Average of all natural numbers 1 to 100
+
+### Average
 ```python
->>> counter.naturals.average()
+>>> counter.naturals.average()  # Returns a float type
 50.5
-
-```
-### Average of all even numbers in range 1 to 100
-```python
->>> counter.evens.average()  # Returns a float type
+>>> counter.naturals.average(percentile=50)  # Supports percentiles
+25.0
+>>> counter.evens.average()
 51.0
-
-```
-### Average of all odd numbers in range 1 to 100
-```python
 >>> counter.odds.average()
 50.0
 
 ```
 
-### Minimum odd and even number in range 1 to 100
+### Minimum
 ```python
 >>> counter.odds.min()
 1
@@ -81,8 +77,12 @@ These metrics are now available to us
 
 ```
 
-### Maximum odd and even number in range 1 to 100
+### Maximum
 ```python
+>>> counter.naturals.max()
+100
+>>> counter.naturals.max(percentile=95)  # Supports percentiles
+94
 >>> counter.odds.max()
 99
 >>> counter.evens.max()
