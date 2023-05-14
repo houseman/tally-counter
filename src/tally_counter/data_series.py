@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import threading
 import time
 
@@ -67,13 +68,13 @@ class DataSeries:
             self.__data_points.append(DataPoint(int(value), timestamp))
             self._prune()  # Pruned after adding data
 
-    def average(self) -> float:
+    def mean(self, percentile: int = 0) -> float:
         """
-        Return the average float value for this data series
+        Return the mean float value for this data series
         """
 
         with self._lock:
-            data_points = self._pruned()
+            data_points = self._pruned(percentile)
             return sum([dp.value for dp in data_points]) / len(data_points)
 
     def min(self) -> int:
@@ -85,13 +86,13 @@ class DataSeries:
             data_points = self._pruned()
             return min([dp.value for dp in data_points])
 
-    def max(self) -> int:
+    def max(self, percentile: int = 0) -> int:
         """
         Return the maximum value for this data series
         """
 
         with self._lock:
-            data_points = self._pruned()
+            data_points = self._pruned(percentile)
             return max([dp.value for dp in data_points])
 
     def len(self) -> int:
@@ -152,9 +153,30 @@ class DataSeries:
             if self.__maxlen and len(self.__data_points) > self.__maxlen:
                 self.__data_points = self.__data_points[-self.__maxlen :]
 
-    def _pruned(self) -> list[DataPoint]:
-        self._prune
+    def _pruned(self, percentile: int = 0) -> list[DataPoint]:
+        self._prune()
+        if percentile:
+            return self._get_percentile(self.__data_points, percentile=percentile)
+
         return self.__data_points
+
+    def _get_percentile(
+        self, data_points: list[DataPoint], percentile: int
+    ) -> list[DataPoint]:
+        """
+        Return the requested percentile from the given data series
+        """
+
+        if not 100 > percentile > 1:
+            raise ValueError(
+                f"Percentile must be an integer from 1 to 99, not {percentile}."
+            )
+
+        with self._lock:
+            size = len(data_points)  # Length of the data series
+            percentile_point = math.floor(size * (percentile / 100))  # percentile point
+
+            return data_points[0 : percentile_point - 1]
 
     def __eq__(self, other: object) -> bool:
         """
