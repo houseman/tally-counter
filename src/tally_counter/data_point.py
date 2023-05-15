@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import threading
+from typing import NamedTuple
 
 
-class DataPoint:
+class DataPoint(NamedTuple):
     """
     Represents a data point, which is a single integer value within a data series.
 
@@ -11,29 +11,5 @@ class DataPoint:
     point.
     """
 
-    def __init__(self, value: int, timestamp: int) -> None:
-        self._lock = threading.RLock()
-        self.__value = int(value)
-        self.__timestamp = int(timestamp)
-
-    @property
-    def value(self) -> int:
-        """
-        This data point's integer value
-        """
-
-        with self._lock:
-            return self.__value
-
-    @property
-    def timestamp(self) -> int:
-        """
-        This data point's monotonic timestamp
-        """
-
-        with self._lock:
-            return self.__timestamp
-
-    def dump(self) -> tuple[int, int]:
-        with self._lock:
-            return (self.__value, self.__timestamp)
+    value: int
+    timestamp: int

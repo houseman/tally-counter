@@ -62,6 +62,8 @@ mypy-extensions==1.0.0
     #   mypy
 nodeenv==1.8.0
     # via pre-commit
+numpy==1.24.3
+    # via tally-counter (pyproject.toml)
 packaging==23.1
     # via
     #   black

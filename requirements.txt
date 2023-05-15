@@ -4,3 +4,5 @@
 #
 #    make update-deps
 #
+numpy==1.24.3
+    # via tally-counter (pyproject.toml)

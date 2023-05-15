@@ -9,8 +9,8 @@ A Python tally counter class
 ## Usage
 This contrived sample counts numbers from 1 to 100. We count the following metrics
 - an aggregate (sum) of all natural numbers from 1 to 100
-- a separate aggregate sum of all even numbers from 1 to 100
-- a separate aggregate sum of all odd numbers from 1 to 100
+- a separate aggregate of all even numbers from 1 to 100
+- a separate aggregate of all odd numbers from 1 to 100
 - a count of the numbers from 1 to 100
 
 ```python
@@ -33,7 +33,7 @@ These metrics are now available to us
 ```python
 >>> counter.naturals
 5050
->>> counter.naturals.sum
+>>> counter.naturals.sum()
 5050
 
 ```
@@ -41,7 +41,7 @@ These metrics are now available to us
 ```python
 >>> counter.numbers
 100
->>> counter.numbers.sum
+>>> counter.numbers.sum()
 100
 
 ```

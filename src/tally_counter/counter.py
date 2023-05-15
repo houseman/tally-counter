@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import threading
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from .data_series import DataSeries
+
+if TYPE_CHECKING:
+    from .data_point import DataPoint
 
 
 class Counter:
@@ -32,7 +35,7 @@ class Counter:
             self.__ttl = ttl
             self.__maxlen = maxlen
 
-    def dump(self) -> dict[str, list[tuple[int, int]]]:
+    def dump(self) -> dict[str, list[DataPoint]]:
         with self._lock:
             return {k: v.dump() for k, v in self.__data.items()}
 

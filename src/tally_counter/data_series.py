@@ -4,6 +4,8 @@ import math
 import threading
 import time
 
+import numpy as np
+
 from .data_point import DataPoint
 
 
@@ -23,7 +25,7 @@ class DataSeries:
         self._lock = threading.RLock()
         self.__ttl = ttl
         self.__maxlen = maxlen
-        self.__data_points: list[DataPoint] = []
+        self.__dp_array: list[DataPoint] = []
 
         if initial_value is not None:
             with self._lock:
@@ -65,7 +67,7 @@ class DataSeries:
             timestamp = time.monotonic_ns()
 
         with self._lock:
-            self.__data_points.append(DataPoint(int(value), timestamp))
+            self.__dp_array.append(DataPoint(int(value), timestamp))
             self._prune()  # Pruned after adding data
 
     def mean(self, percentile: int = 0) -> float:
@@ -84,7 +86,7 @@ class DataSeries:
 
         with self._lock:
             data_points = self._pruned()
-            return min([dp.value for dp in data_points])
+            return np.min([dp.value for dp in data_points])
 
     def max(self, percentile: int = 0) -> int:
         """
@@ -93,7 +95,7 @@ class DataSeries:
 
         with self._lock:
             data_points = self._pruned(percentile)
-            return max([dp.value for dp in data_points])
+            return np.max([dp.value for dp in data_points])
 
     def len(self) -> int:
         """
@@ -123,14 +125,13 @@ class DataSeries:
 
             return data_points[-1].timestamp - data_points[0].timestamp
 
-    def dump(self) -> list[tuple[int, int]]:
+    def dump(self) -> list[DataPoint]:
         with self._lock:
-            return [dp.dump() for dp in self._pruned()]
+            return self._pruned()
 
-    @property
     def sum(self) -> int:
         with self._lock:
-            return sum([dp.value for dp in self._pruned()])
+            return int(np.sum([dp.value for dp in self._pruned()]))
 
     def _prune(self) -> None:
         """
@@ -145,20 +146,20 @@ class DataSeries:
                 ttl_in_ns = self.__ttl * 1000000  # 1 ms = 1000000 ns
                 prune_ts = time.monotonic_ns() - ttl_in_ns
 
-                self.__data_points = [
-                    dp for dp in self.__data_points if dp.timestamp >= prune_ts
+                self.__dp_array = [
+                    dp for dp in self.__dp_array if dp.timestamp >= prune_ts
                 ]
 
             # Prune length
-            if self.__maxlen and len(self.__data_points) > self.__maxlen:
-                self.__data_points = self.__data_points[-self.__maxlen :]
+            if self.__maxlen and len(self.__dp_array) > self.__maxlen:
+                self.__dp_array = self.__dp_array[-self.__maxlen :]
 
     def _pruned(self, percentile: int = 0) -> list[DataPoint]:
         self._prune()
         if percentile:
-            return self._get_percentile(self.__data_points, percentile=percentile)
+            return self._get_percentile(self.__dp_array, percentile=percentile)
 
-        return self.__data_points
+        return self.__dp_array
 
     def _get_percentile(
         self, data_points: list[DataPoint], percentile: int
@@ -184,15 +185,15 @@ class DataSeries:
         """
 
         if isinstance(other, DataPoint):
-            return self.sum == other.value
+            return self.sum() == other.value
 
         if isinstance(other, DataSeries):
-            return self.sum == other.sum
+            return self.sum() == other.sum()
 
         if isinstance(other, int):
-            return self.sum == other
+            return self.sum() == other
 
         return False
 
     def __repr__(self) -> str:
-        return f"{self.sum}"
+        return f"{self.sum()}"
