@@ -1,3 +1,5 @@
+"""`DataSeries` unit tests."""
+
 import math
 import re
 

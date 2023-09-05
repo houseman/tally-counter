@@ -2,7 +2,6 @@
 
 > **Note**
 > The **minimum** required and supported Python version is `3.8`.
-> The **maximum** supported Python version is `3.11`
 
 ## Development Environment
 ### Setup

@@ -1,3 +1,5 @@
+"""The `DataSeries` model."""
+
 from __future__ import annotations
 
 import math
@@ -8,9 +10,7 @@ from .data_point import DataPoint
 
 
 class DataSeries:
-    """
-    Represents a data series, a linear sequence of data points, ordered by point in time
-    """
+    """Represents a data series, a linear sequence of data points, ordered by time."""
 
     def __init__(
         self,
@@ -33,34 +33,25 @@ class DataSeries:
                     self._append(int(initial_value), timestamp=time.monotonic_ns())
 
     def incr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
-        """
-        Increment the count for this data series by default of `1` or specified `value`.
-        """
-
+        """Increment the count for this data series by default of `1` or `value`."""
         try:
             self._append(+(value), timestamp=timestamp)
-        except TypeError:
+        except TypeError as e:
             raise TypeError(
                 f"incr() argument must be an integer, not '{value.__class__.__name__}'"
-            )
+            ) from e
 
     def decr(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
-        """
-        Decrement the count for this data series by default of `-1` or specified `value`
-        """
-
+        """Decrement the count for this data series by default of `-1` or `value`."""
         try:
             self._append(-(value), timestamp=timestamp)
-        except TypeError:
+        except TypeError as e:
             raise TypeError(
                 f"decr() argument must be an integer, not '{value.__class__.__name__}'"
-            )
+            ) from e
 
     def _append(self, value: int = 1, /, *, timestamp: int | None = None) -> None:
-        """
-        This should be the only function that mutates (appends to) the data points list
-        """
-
+        """Only use this method to mutate (append to) the data points list."""
         if timestamp is None:
             timestamp = time.monotonic_ns()
 
@@ -69,45 +60,30 @@ class DataSeries:
             self._prune()  # Pruned after adding data
 
     def mean(self, percentile: int = 0) -> float:
-        """
-        Return the mean float value for this data series
-        """
-
+        """Return the mean float value for this data series."""
         with self._lock:
             data_points = self._pruned(percentile)
             return sum([dp.value for dp in data_points]) / len(data_points)
 
     def min(self) -> int:
-        """
-        Return the minimum value for this data series
-        """
-
+        """Return the minimum value for this data series."""
         with self._lock:
             data_points = self._pruned()
             return min([dp.value for dp in data_points])
 
     def max(self, percentile: int = 0) -> int:
-        """
-        Return the maximum value for this data series
-        """
-
+        """Return the maximum value for this data series."""
         with self._lock:
             data_points = self._pruned(percentile)
             return max([dp.value for dp in data_points])
 
     def len(self) -> int:
-        """
-        Return the length (number of data points) of this data series
-        """
-
+        """Return the length (number of data points) of this data series."""
         with self._lock:
             return len(self._pruned())
 
     def age(self) -> int:
-        """
-        Return the age of this data series, in nanoseconds
-        """
-
+        """Return the age of this data series, in nanoseconds."""
         return time.monotonic_ns() - self._pruned()[0].timestamp
 
     def span(self) -> int:
@@ -117,28 +93,29 @@ class DataSeries:
         This is the time difference between the earliest and latest data points in the
         series.
         """
-
         with self._lock:
             data_points = self._pruned()
 
             return data_points[-1].timestamp - data_points[0].timestamp
 
     def dump(self) -> list[tuple[int, int]]:
+        """Return all series data."""
         with self._lock:
             return [dp.dump() for dp in self._pruned()]
 
     @property
     def sum(self) -> int:
+        """Return the sum of this data series."""
         with self._lock:
             return sum([dp.value for dp in self._pruned()])
 
     def _prune(self) -> None:
         """
-        Prune data from the series, that has
-        - passed TTL from series, if a TTL is specified. Or,
-        - exceeds the maximum series length, ordered by time descending
-        """
+        Prune data from the series, that has.
 
+        - passed TTL from series, if a TTL is specified. Or,
+        - exceeds the maximum series length, ordered by time descending.
+        """
         with self._lock:
             # Prune by age
             if self.__ttl:
@@ -163,10 +140,7 @@ class DataSeries:
     def _get_percentile(
         self, data_points: list[DataPoint], percentile: int
     ) -> list[DataPoint]:
-        """
-        Return the requested percentile from the given data series
-        """
-
+        """Return the requested percentile from the given data series."""
         if not 100 > percentile > 1:
             raise ValueError(
                 f"Percentile must be an integer from 1 to 99, not {percentile}."
@@ -179,10 +153,7 @@ class DataSeries:
             return data_points[0 : percentile_point - 1]
 
     def __eq__(self, other: object) -> bool:
-        """
-        Overloads the `==` operator.
-        """
-
+        """Overloads the `==` operator."""
         if isinstance(other, DataPoint):
             return self.sum == other.value
 
@@ -195,4 +166,5 @@ class DataSeries:
         return False
 
     def __repr__(self) -> str:
+        """Return the representation of this instance."""
         return f"{self.sum}"

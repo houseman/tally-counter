@@ -1,3 +1,4 @@
+"""The `DataPoint` model."""
 from __future__ import annotations
 
 import threading
@@ -18,22 +19,17 @@ class DataPoint:
 
     @property
     def value(self) -> int:
-        """
-        This data point's integer value
-        """
-
+        """Return the data point's integer value."""
         with self._lock:
             return self.__value
 
     @property
     def timestamp(self) -> int:
-        """
-        This data point's monotonic timestamp
-        """
-
+        """Return the data point's monotonic timestamp."""
         with self._lock:
             return self.__timestamp
 
     def dump(self) -> tuple[int, int]:
+        """Return data point values."""
         with self._lock:
             return (self.__value, self.__timestamp)
