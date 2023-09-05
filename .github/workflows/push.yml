@@ -17,7 +17,7 @@ jobs:
           python-versions: "3.8, 3.9, 3.10, 3.11"
       - name: Run linting
         run: |
-          make lint-all
+          make lint
       - name: Run tests
         run: |
-          make test-all
+          make test
