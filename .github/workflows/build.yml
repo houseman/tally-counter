@@ -4,9 +4,7 @@ name: Build
 
 on:
   push:
-    branches: [main]
   pull_request:
-    types: [opened, ready_for_review]
 env:
   CURRENT_VERSION:
   MAIN_VERSION:
