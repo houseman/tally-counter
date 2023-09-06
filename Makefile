@@ -34,7 +34,7 @@ install: update-pip pip-sync ## Install dependencies
 test: ## Run unit tests
 	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
 	# @nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
+	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session test $(NOX_OPTS)
 
 lint: # Run linting
 	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)

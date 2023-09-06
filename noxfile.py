@@ -5,7 +5,7 @@ SUPPORTED_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 
 
 @nox.session(python=SUPPORTED_PYTHON_VERSIONS)
-def tests(session):
+def test(session):
     """Run unit and doc tests."""
     session.install("pip-tools")
     session.run(
@@ -29,6 +29,7 @@ def tests(session):
         "*.md",
         "--ignore-glob",
         "tests/*.py",
+        "--no-cov",
         ".",
     )
 
