@@ -21,8 +21,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # This is necessary for setuptools_scm to work
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
