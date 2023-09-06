@@ -15,6 +15,7 @@ permissions:
   contents: read
 
 jobs:
+  # Check that the package version is bumped up from the version in "main"
   version-check:
     runs-on: ubuntu-latest
     steps:
@@ -41,6 +42,8 @@ jobs:
         run: git checkout -
       - name: Check version
         run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
+
+  # Run linting and tests on all operating systems and supported Python versions
   build:
     needs: version-check
     runs-on: ${{ matrix.os }}
@@ -60,15 +63,18 @@ jobs:
       - name: Run tests
         run: |
           make test
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'push' && github.brnch == 'main'
-  #   steps:
-  #       - uses: actions/checkout@v3
-  #       - name: Build sdist and wheel
-  #       run: pipx run build
-  #       - name: Publish distribution PyPI
-  #       uses: pypa/gh-action-pypi-publish@release/v1
-  #       with:
-  #           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  # Create a new release if branch is "main"
+  release:
+    needs: version-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.CURRENT_VERSION }}
+          release_name: Release ${{ env.CURRENT_VERSION }}
+          draft: false
+          prerelease: false
