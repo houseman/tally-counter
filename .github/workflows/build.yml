@@ -1,0 +1,32 @@
+# Runs builds on all operating sytems on opening of a pull request or push to main brnch
+# Nox is used to run these builds for all supported Python versinns
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.0.0
+      - name: Set up Python + Nox  om ${{ matrix.os }}
+        uses: wntrblm/nox@2023.04.22
+        with:
+          python-versions: "3.8, 3.9, 3.10, 3.11"
+      - name: Run linting
+        run: |
+          make lint
+      - name: Run tests
+        run: |
+          make test
