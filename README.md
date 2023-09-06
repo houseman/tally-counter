@@ -5,7 +5,8 @@
 [![GitHub](https://img.shields.io/github/v/release/houseman/tally-counter?logo=github&sort=semver)](https://github.com/houseman/tally-counter)
 [![Build](https://github.com/houseman/tally-counter/actions/workflows/build.yml/badge.svg)](https://github.com/houseman/tally-counter/actions?query=workflow%3Abuild)
 [![License](https://img.shields.io/github/license/houseman/tally-counter)](https://github.com/houseman/tally-counter)
-<br/>
+
+
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/houseman/tally-counter)
