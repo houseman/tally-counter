@@ -33,14 +33,18 @@ jobs:
       - name: Get current version
         run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
       - name: Checkout main branch
+        if: github.ref != 'ref/heads/main'
         run: |
           git fetch origin main:main
           git checkout main
       - name: Get main version
+        if: github.ref != 'ref/heads/main'
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
       - name: Checkout pushed branch
+        if: github.ref != 'ref/heads/main'
         run: git checkout -
       - name: Check version
+        if: github.ref != 'ref/heads/main'
         run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
@@ -68,6 +72,7 @@ jobs:
   release:
     needs: version-check
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'ref/heads/main'
     steps:
       - name: Create Release
         uses: actions/create-release@v1
