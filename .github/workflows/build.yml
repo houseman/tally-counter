@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semver
-          pip install .
+          pip install --editable .
       - name: Get current version
         run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
       - name: Checkout main branch
