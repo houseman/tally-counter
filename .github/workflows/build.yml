@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install semver
-          pip install --editable .
+          pip install .
       - name: Get current version
         run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
       - name: Checkout main branch
@@ -35,12 +35,15 @@ jobs:
         run: |
           git fetch origin main:main
           git checkout main
+          pip install .
       - name: Get main version
         if: github.ref != 'ref/heads/main'
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
       - name: Checkout pushed branch
         if: github.ref != 'ref/heads/main'
-        run: git checkout -
+        run: |
+          git checkout -
+          pip install .
       - name: Check version
         if: github.ref != 'ref/heads/main'
         run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
