@@ -16,7 +16,7 @@ charset-normalizer==3.2.0
     # via requests
 click==8.1.7
     # via black
-coverage[toml]==7.3.0
+coverage[toml]==7.3.1
     # via pytest-cov
 distlib==0.3.7
     # via virtualenv
@@ -81,7 +81,7 @@ pytest==7.4.1
     #   pytest-cov
     #   pytest-mock
     #   tally-counter (pyproject.toml)
-pytest-cov[all]==4.1.0
+pytest-cov==4.1.0
     # via tally-counter (pyproject.toml)
 pytest-mock==3.11.1
     # via tally-counter (pyproject.toml)

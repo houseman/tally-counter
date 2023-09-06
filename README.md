@@ -1,22 +1,19 @@
 # tally-counter
+[![PyPI](https://img.shields.io/pypi/v/tally-counter.svg?logo=python)](https://pypi.python.org/pypi/tally-counter)
+[![Downloads](https://static.pepy.tech/badge/tally-counter)](https://pepy.tech/project/tally-counter)
+[![image](https://img.shields.io/pypi/pyversions/tally-counter.svg)](https://pypi.python.org/pypi/tally-counter)
+[![GitHub](https://img.shields.io/github/v/release/houseman/tally-counter?logo=github&sort=semver)](https://github.com/houseman/tally-counter)
+[![Build](https://github.com/houseman/tally-counter/actions/workflows/build.yml/badge.svg)](https://github.com/houseman/tally-counter/actions?query=workflow%3Abuild)
+[![License](https://img.shields.io/github/license/houseman/tally-counter)](https://github.com/houseman/tally-counter)
+
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![License](https://img.shields.io/github/license/houseman/tally-counter)](https://github.com/houseman/tally-counter)
-[![PyPI](https://img.shields.io/pypi/v/tally-counter.svg?logo=python)](https://pypi.python.org/pypi/tally-counter)
-[![image](https://img.shields.io/pypi/pyversions/ruff.svg)](https://pypi.python.org/pypi/ruff)
-[![GitHub](https://img.shields.io/github/v/release/houseman/tally-counter?logo=github&sort=semver)](https://github.com/houseman/tally-counter)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Code Style](https://img.shields.io/badge/code%20style-black-black)](https://github.com/houseman/tally-counter)
-[![Build](https://github.com/houseman/tally-counter/actions/workflows/build.yml/badge.svg)](https://github.com/houseman/tally-counter/actions?query=workflow%3Abuild)
-[![Downloads](https://static.pepy.tech/badge/tally-counter)](https://pepy.tech/project/tally-counter)
 [![Nox](https://img.shields.io/badge/%F0%9F%A6%8A-Nox-D85E00.svg)](https://github.com/houseman/tally-counter)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 A Python tally counter class
-
-![python](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)
-![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)
-![Linting](https://img.shields.io/badge/linting-flake8%20%7C%20isort%20%7C%20mypy-yellowgreen)
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
 ## Usage
 This contrived sample counts numbers from 1 to 100. We count the following metrics

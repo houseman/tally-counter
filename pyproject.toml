@@ -1,6 +1,6 @@
 [project]
 name = "tally-counter"
-version = "0.0.1"
+version = "0.0.2"
 authors = [{ name = "Scott Houseman", email = "scott.houseman@gmail.com" }]
 description = "A Python tally counter class"
 readme = "README.md"
@@ -35,7 +35,7 @@ dev = [
 
   # Test dependencies
   "pytest",
-  "pytest-cov[all]",
+  "pytest-cov",
   "pytest-mock",
 
   # PyPI
