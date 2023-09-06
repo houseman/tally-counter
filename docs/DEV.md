@@ -2,18 +2,23 @@
 
 > **Note**
 > The **minimum** required and supported Python version is `3.8`.
-> The **maximum** supported Python version is `3.11`
 
 ## Development Environment
 ### Setup
 
 Use `make` targets to automate tasks.
-
+```shell
+❯ make help
+help                 Show this help message
+install              Install dependencies
+test                 Run unit tests
+update               Update dependencies
+```
 #### Install dependencies
 
 This target uses `pip-tools sync` to install required dependencies.
 ```shell
-make install-deps
+make install
 ```
 
 #### Update dependencies
@@ -26,35 +31,23 @@ _Pre-commit hooks are also updated._
 > Updated `*requirements.txt` files _should be added to source control_
 
 ```shell
-make update-deps
+make update
 ```
 
 ### Linting
 
-Run all `pre-commit` hooks (except pytest) in a Python minimum-supported environment
+Run all `pre-commit` hooks in all supported Python versions
 
 ```shell
  make lint
 ```
 
-Run all `pre-commit` hooks (except pytest) in all supported Python environments
-
-```shell
- make lint-all
-```
-
 ### Unit Tests
 
-Run all unit tests (including doctests) in a Python minimum-supported environment
+Run all unit tests (including doctests) in all supported Python versions
 
 ```shell
  make test
-```
-
-Run all unit tests (including doctests) inn all supported Python environments
-
-```shell
- make test-all
 ```
 
 ## Deployment

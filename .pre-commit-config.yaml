@@ -12,40 +12,32 @@ repos:
         args: ["--pytest-test-first"]
       - id: no-commit-to-branch
 
+  - repo: https://github.com/lk16/detect-missing-init
+    rev: v0.1.6
+    hooks:
+      - id: detect-missing-init
+        args:
+          ["--create", "--track", "--python-folders", "tests,src/tally_counter"]
+
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.10.1
     hooks:
       - id: pyupgrade
         args: ["--py38-plus"]
 
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black
-        args: ["--target-version", "py38"]
-
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        additional_dependencies: [flake8-2020]
-
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.3.0
+    rev: "v1.5.1"
     hooks:
       - id: mypy
 
-  - repo: local
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
     hooks:
-      - id: pytest-check
-        name: pytest
-        entry: make test-all
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [pre-push]
+      - id: black
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.0.287
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]

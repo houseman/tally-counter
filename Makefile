@@ -1,27 +1,19 @@
-# === COLORS ===
-RED     := $(shell tput -Txterm setaf 1)
-GREEN   := $(shell tput -Txterm setaf 2)
-YELLOW  := $(shell tput -Txterm setaf 3)
-BLUE    := $(shell tput -Txterm setaf 4)
-PURPLE  := $(shell tput -Txterm setaf 5)
-CYAN    := $(shell tput -Txterm setaf 6)
-WHITE   := $(shell tput -Txterm setaf 7)
-BOLD   	:= $(shell tput -Txterm bold)
-RESET   := $(shell tput -Txterm sgr0)
-
 TEST_OPTS ?=
 NOX_OPTS ?=
+
+# Constants
 PIP_COMPILE_ARGS = --upgrade --no-emit-index-url --no-emit-trusted-host --resolver=legacy
 SUPPORTED_PYTHON_VERSIONS = 3.8 3.9 3.10 3.11
-MINIMUM_PYTHON_VERSION = 3.8
+
+.PHONY: update-pip pip-compile pip-sync update install update-pre-commit test test-all lint lint-all
 
 ## Compile *requirements.txt files from *.in files, using pip-tools
 pip-compile:
 	@python -m piptools compile --version &> /dev/null || (echo "Installing pip-tools" && python -m pip install --quiet pip-tools)
-	CUSTOM_COMPILE_COMMAND="make update-deps" python -m piptools compile  $(PIP_COMPILE_ARGS) --output-file requirements.txt pyproject.toml
-	CUSTOM_COMPILE_COMMAND="make update-deps" python -m piptools compile  $(PIP_COMPILE_ARGS) --extra dev --pip-args "--constrain requirements.txt" --output-file dev-requirements.txt pyproject.toml
+	CUSTOM_COMPILE_COMMAND="make update" python -m piptools compile  $(PIP_COMPILE_ARGS) --output-file requirements.txt pyproject.toml
+	CUSTOM_COMPILE_COMMAND="make update" python -m piptools compile  $(PIP_COMPILE_ARGS) --extra dev --pip-args "--constrain requirements.txt" --output-file dev-requirements.txt pyproject.toml
 
-## Install dependencies and ensure they are synced
+## Install dependencies from *requirements.txt files into the environment
 pip-sync:
 	@python -m piptools sync --version &> /dev/null || (echo "Installing pip-tools" && python -m pip install --quiet pip-tools)
 	python -m piptools sync requirements.txt dev-requirements.txt
@@ -36,33 +28,17 @@ update-pre-commit:
 update-pip:
 	python -m pip install --upgrade pip pip-tools
 
-update-deps: update-pip pip-compile pip-sync update-pre-commit
-install-deps: update-pip pip-sync
+update: update-pip pip-compile pip-sync update-pre-commit ## Update dependencies
+install: update-pip pip-sync ## Install dependencies
 
-.PHONY: update-pip pip-compile pip-sync update-deps install-deps update-pre-commit
+test: ## Run unit tests
+	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
+	# @nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
+	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session test $(NOX_OPTS)
 
-.PHONY: test test-all
-test:
-	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	@echo "\n${BLUE}TEST >>> Python $(MINIMUM_PYTHON_VERSION)${RESET}"
-	nox --python $(MINIMUM_PYTHON_VERSION) --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
-	@echo "\n${BLUE}TEST >>> DONE${RESET}"
+lint: # Run linting
+	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
+	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
 
-test-all:
-	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	@echo "\n${BLUE}TEST >>> Python $(SUPPORTED_PYTHON_VERSIONS)${RESET}"
-	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session tests $(NOX_OPTS)
-	@echo "\n${BLUE}TEST >>> DONE${RESET}"
-
-.PHONY: lint lint-all
-lint:
-	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	@echo "\n${BLUE}LINT >>> Python $(MINIMUM_PYTHON_VERSION)${RESET}"
-	nox --python $(MINIMUM_PYTHON_VERSION) --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
-	@echo "\n${BLUE}LINT >>> DONE${RESET}"
-
-lint-all:
-	@nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	@echo "\n${BLUE}LINT >>> Python $(SUPPORTED_PYTHON_VERSIONS)${RESET}"
-	@nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
-	@echo "\n${BLUE}LINT >>> DONE${RESET}"
+help: ## Show this help message
+	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

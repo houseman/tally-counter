@@ -1,3 +1,6 @@
+"""`DataPoint` unit tests."""
+
+
 def test_properties():
     from tally_counter.data_point import DataPoint
 

@@ -1,23 +1,25 @@
+# Runs a build on Ubuntu for all oush events
+# Nox is used to run builds for all supported Python versinns
 name: Push to GitHub
 
-on: [push, pull_request]
+on: push
 
 permissions:
   contents: read
 
 jobs:
-  pub:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Python
-        uses: wntrblm/nox@2022.8.7
+        uses: wntrblm/nox@2023.04.22
         with:
           python-versions: "3.8, 3.9, 3.10, 3.11"
       - name: Run linting
         run: |
-          make lint-all
+          make lint
       - name: Run tests
         run: |
-          make test-all
+          make test

@@ -1,3 +1,4 @@
+"""`Counter` unit tests."""
 import threading
 
 import pytest
