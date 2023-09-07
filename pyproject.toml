@@ -1,6 +1,6 @@
 [project]
 name = "tally-counter"
-version = "0.0.5"
+version = "0.0.6"
 authors = [{ name = "Scott Houseman", email = "scott.houseman@gmail.com" }]
 description = "A Python tally counter class"
 readme = "README.md"

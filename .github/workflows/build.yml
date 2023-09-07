@@ -6,7 +6,7 @@ on:
   push:
 
 permissions:
-  contents: read
+  contents: write # allows the action to create a release
 
 jobs:
   # Get this branch version
