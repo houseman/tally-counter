@@ -28,7 +28,7 @@ jobs:
           pip install semver
           pip install .
       - name: Set current version
-        run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
+        run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
 
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
@@ -53,7 +53,7 @@ jobs:
           pip install semver
           pip install .
       - name: Get main version
-        run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
+        run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
       - name: Check version
         run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
