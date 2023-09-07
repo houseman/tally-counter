@@ -31,14 +31,19 @@ update-pip:
 update: update-pip pip-compile pip-sync update-pre-commit ## Update dependencies
 install: update-pip pip-sync ## Install dependencies
 
-test: ## Run unit tests
+test: ## Run unit tests in all supported Python versions
 	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
 	# @nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
 	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session test $(NOX_OPTS)
 
-lint: # Run linting
+lint: ## Run linting in all supported Python versions
 	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
 	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
+
+nice: ## Run linting in local environment
+	black .
+	ruff check --fix .
+	mypy .
 
 help: ## Show this help message
 	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

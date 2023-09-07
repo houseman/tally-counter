@@ -64,15 +64,20 @@ def test_init_no_kwargs():
 
     # Attribute does not exist, instantiated to a zero value
     assert counter.foo == 0
+    assert counter["oof"] == 0
 
     # Attribute does not exist, instantiated to a zero value, then incremented
     counter.bar.incr()
     assert counter.bar == 1
+    counter["rab"].incr()
+    assert counter["rab"] == 1
 
     # Attribute does not exist, instantiated to a zero value, then incremented by a
     # given value
     counter.baz.incr(1234)
     assert counter.baz == 1234
+    counter["zab"].incr(1234)
+    assert counter["zab"] == 1234
 
 
 @pytest.mark.parametrize("kwargs", [{"all": 0, "odds": 0, "evens": 0}, {}])
@@ -88,8 +93,11 @@ def test_through(kwargs):
             counter.odds.incr(x)  # Add to "odds" counter
 
     assert counter.all == 5050  # Sum of natural numbers 1 to 100
+    assert counter["all"] == 5050
     assert counter.evens == 2500
+    assert counter["evens"] == 2500
     assert counter.odds == 2550
+    assert counter["odds"] == 2550
 
 
 def test_dump():
