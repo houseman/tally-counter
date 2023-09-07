@@ -27,8 +27,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install semver
           pip install .
-      - name: Set current version
+      - name: Set this branch version
         run: echo "BRANCH_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
+      - name: Print this branch version
+        run: |
+          python -c 'import tally_counter; print(f"version: {tally_counter.__version__}")'
+          echo "${{ env.BRANCH_VERSION }}"
 
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
