@@ -58,8 +58,8 @@ jobs:
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
       - name: Check version
         env:
-          BRANCH_VERSION: ${{needs.get-branch-version.outputs.BRANCH_VERSION}}
-        run: python -c "import semver; assert semver.compare('$BRANCH_VERSION', '${{ steps.get-main-version.outputs.MAIN_VERSION }}') > 0, 'Version not bumped'"
+          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
+        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ steps.get-main-version.outputs.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
   build:
@@ -92,7 +92,7 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_VERSION: ${{needs.get-branch-version.outputs.BRANCH_VERSION}}
+          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
         with:
           tag_name: $BRANCH_VERSION
           release_name: Release $BRANCH_VERSION
