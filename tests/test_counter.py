@@ -23,7 +23,7 @@ def test_constructor_given_no_attr():
     from tally_counter import Counter
 
     counter = Counter()
-    assert counter.dump() == {}
+    assert counter.data == {}
 
 
 def test_ttl_attr():
@@ -108,7 +108,7 @@ def test_dump():
     counter.foo.incr(1023, timestamp=1001)
     counter.foo.incr(1024, timestamp=1002)
 
-    assert counter.dump() == {"foo": [(1022, 1000), (1023, 1001), (1024, 1002)]}
+    assert counter.data == {"foo": [(1022, 1000), (1023, 1001), (1024, 1002)]}
 
 
 @pytest.fixture()

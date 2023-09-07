@@ -1,10 +1,10 @@
-"""The `DataPoint` model."""
+"""The `_Point` model."""
 from __future__ import annotations
 
 import threading
 
 
-class DataPoint:
+class _Point:
     """
     Represents a data point, which is a single integer value within a data series.
 
@@ -29,7 +29,8 @@ class DataPoint:
         with self._lock:
             return self.__timestamp
 
-    def dump(self) -> tuple[int, int]:
+    @property
+    def data(self) -> tuple[int, int]:
         """Return data point values."""
         with self._lock:
             return (self.__value, self.__timestamp)
