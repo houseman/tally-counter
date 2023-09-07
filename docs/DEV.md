@@ -11,7 +11,9 @@ Use `make` targets to automate tasks.
 ❯ make help
 help                 Show this help message
 install              Install dependencies
-test                 Run unit tests
+lint                 Run linting in all supported Python versions
+nice                 Run linting in local environment
+test                 Run unit tests in all supported Python versions
 update               Update dependencies
 ```
 #### Install dependencies
@@ -27,8 +29,8 @@ This target uses `pip-tools compile` to compile requirements, and `sync` to inst
 
 _Pre-commit hooks are also updated._
 
-> **Note**
-> Updated `*requirements.txt` files _should be added to source control_
+> **Important**
+> Updated `*requirements.txt` files ***should be added to source control***.
 
 ```shell
 make update
@@ -39,12 +41,19 @@ make update
 Run all `pre-commit` hooks in all supported Python versions
 
 ```shell
- make lint
+make lint
 ```
+
+The above target uses Nox to run linting for all supported Python versions. This can take a vit longer.
+For a faster option
+```shell
+make nice
+```
+This will run linting in the local virtual environment,
 
 ### Unit Tests
 
-Run all unit tests (including doctests) in all supported Python versions
+Run all unit tests (including doctests) in all supported Python versions (using Nox)
 
 ```shell
  make test

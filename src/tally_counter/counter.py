@@ -15,17 +15,15 @@ class Counter:
         # Thread safety lock
         self._lock = threading.RLock()
 
-        ttl = self._get_int_from_kwargs(kwargs, "ttl")
-        maxlen = self._get_int_from_kwargs(kwargs, "maxlen")
+        ttl = self._get_int_or_none(kwargs, "ttl")
+        maxlen = self._get_int_or_none(kwargs, "maxlen")
 
         init_data: dict[str, DataSeries] = {}
         for k in args:
             init_data[str(k)] = DataSeries(None, ttl=ttl, maxlen=maxlen)
 
         for k, v in kwargs.items():
-            initial_value = None if v is None else int(v)
-
-            init_data[str(k)] = DataSeries(initial_value, ttl=ttl, maxlen=maxlen)
+            init_data[str(k)] = DataSeries(int(v), ttl=ttl, maxlen=maxlen)
 
         with self._lock:
             self.__data = init_data
@@ -43,21 +41,38 @@ class Counter:
         with self._lock:
             return self.__ttl
 
-    def __getattr__(self, name: str) -> Any:
-        """Find and return an attribute value when it is not in the usual places."""
-        with self._lock:
-            data_series = self.__data.get(name)
-            if not data_series:
-                data_series = DataSeries(None, ttl=self.__ttl, maxlen=self.__maxlen)
-                self.__data[name] = data_series
+    def __getattr__(self, name: str) -> DataSeries:
+        """
+        Find and return a data series for the given attribute name.
 
-            return data_series
+        If no data series exists for the given name, then create an empty series and
+        return that.
+        """
+        return self._get_key_val(key=name)
+
+    def __getitem__(self, key: str) -> DataSeries:
+        """
+        Find and return a data series for the given key value.
+
+        If no data series exists for the given key, then create an empty series and
+        return that.
+        """
+        return self._get_key_val(key=key)
 
     @staticmethod
-    def _get_int_from_kwargs(kwargs: dict[str, int], key: str) -> int | None:
+    def _get_int_or_none(container: dict[str, Any], key: str) -> int | None:
         try:
-            return int(kwargs.pop(key))
+            return int(container.pop(key))
         except KeyError:
             return None
         except ValueError as e:
             raise TypeError(f"'int' expected for argument '{key}'") from e
+
+    def _get_key_val(self, key: str) -> DataSeries:
+        with self._lock:
+            if key not in self.__data:
+                self.__data[key] = DataSeries(
+                    None, ttl=self.__ttl, maxlen=self.__maxlen
+                )
+
+            return self.__data[key]

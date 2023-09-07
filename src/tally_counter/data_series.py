@@ -141,7 +141,7 @@ class DataSeries:
         self, data_points: list[DataPoint], percentile: int
     ) -> list[DataPoint]:
         """Return the requested percentile from the given data series."""
-        if not 100 > percentile > 1:
+        if not 100 > percentile > 1:  # noqa: PLR2004
             raise ValueError(
                 f"Percentile must be an integer from 1 to 99, not {percentile}."
             )

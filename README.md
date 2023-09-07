@@ -37,7 +37,7 @@ This contrived sample counts numbers from 1 to 100. We count the following metri
 
 ```
 
-These metrics are now available to us
+These metrics are now available to us, and may be accessed as attributes of the `Counter` instance:
 ### Sum of all natural numbers from 1 to 100
 ```python
 >>> counter.naturals
@@ -46,6 +46,16 @@ These metrics are now available to us
 5050
 
 ```
+
+It is also possible to access these metrics using a key:
+```python
+>>> counter["naturals"]
+5050
+>>> counter["naturals"].sum
+5050
+
+```
+
 ### Count of all natural numbers from 1 to 100
 ```python
 >>> counter.numbers
