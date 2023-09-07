@@ -4,18 +4,17 @@ name: Build
 
 on:
   push:
-  pull_request:
-env:
-  CURRENT_VERSION:
-  MAIN_VERSION:
 
 permissions:
   contents: read
 
 jobs:
-  # Check that the package version is bumped up from the version in "main"
-  version-check:
+  # Get this branch version
+  get-branch-version:
     runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      BRANCH_VERSION: ${{ steps.branch-version.outputs.BRANCH_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,25 +27,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install semver
           pip install .
-      - name: Get current version
-        run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
+      - name: Set this branch version
+        id: branch-version
+        run: echo "BRANCH_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
+
+  # Check that the package version is bumped up from the version in "main", if current branch is not "main"
+  version-check:
+    runs-on: ubuntu-latest
+    needs: get-branch-version
+    if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
       - name: Checkout main branch
-        if: github.ref != 'ref/heads/main'
         run: |
           git fetch origin main:main
           git checkout main
           pip install .
-      - name: Get main version
-        if: github.ref != 'ref/heads/main'
-        run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> $GITHUB_ENV
-      - name: Checkout pushed branch
-        if: github.ref != 'ref/heads/main'
+      - name: Install dependencies
         run: |
-          git checkout -
+          python -m pip install --upgrade pip
+          pip install semver
           pip install .
+      - name: Get main version
+        id: get-main-version
+        run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
       - name: Check version
-        if: github.ref != 'ref/heads/main'
-        run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
+        env:
+          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
+        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ steps.get-main-version.outputs.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
   build:
@@ -71,16 +84,17 @@ jobs:
 
   # Create a new release if branch is "main"
   release:
-    needs: version-check
+    needs: get-branch-version
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'ref/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' }} # Only create a release if the push branch is "main"
     steps:
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
         with:
-          tag_name: ${{ env.CURRENT_VERSION }}
-          release_name: Release ${{ env.CURRENT_VERSION }}
+          tag_name: $BRANCH_VERSION
+          release_name: Release $BRANCH_VERSION
           draft: false
           prerelease: false
