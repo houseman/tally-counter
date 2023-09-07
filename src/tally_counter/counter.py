@@ -9,7 +9,7 @@ from .series import _Series
 
 
 class Counter:
-    """Represents a container for any number of named data series."""
+    """A container for any number of named data series."""
 
     def __init__(self, *args: str, **kwargs: int) -> None:
         # Thread safety lock
@@ -20,10 +20,10 @@ class Counter:
 
         init_data: dict[str, _Series] = {}
         for k in args:
-            init_data[str(k)] = _Series(None, ttl=ttl, maxlen=maxlen)
+            init_data[str(k)] = _Series(None, ttl=ttl, maxlen=maxlen, lock=self._lock)
 
         for k, v in kwargs.items():
-            init_data[str(k)] = _Series(int(v), ttl=ttl, maxlen=maxlen)
+            init_data[str(k)] = _Series(int(v), ttl=ttl, maxlen=maxlen, lock=self._lock)
 
         with self._lock:
             self.__data = init_data
@@ -72,6 +72,8 @@ class Counter:
     def _get_or_create_series(self, key: str) -> _Series:
         with self._lock:
             if key not in self.__data:
-                self.__data[key] = _Series(None, ttl=self.__ttl, maxlen=self.__maxlen)
+                self.__data[key] = _Series(
+                    None, ttl=self.__ttl, maxlen=self.__maxlen, lock=self._lock
+                )
 
             return self.__data[key]

@@ -204,7 +204,7 @@ def test_len():
     assert series.len() == 5
 
 
-def test_dump():
+def test_data():
     series = _Series()
     series.incr(1022, timestamp=1000)
     series.incr(1023, timestamp=1001)

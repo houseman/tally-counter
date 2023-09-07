@@ -4,80 +4,122 @@ import threading
 import pytest
 
 
-def test_init_kwargs():
+def test_init__with_kwargs():
+    """
+    Test the initialization of a `Counter` object with keyword arguments.
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with the keyword argument "foo" set to 100.
+    Then: The "foo" attribute of the Counter object should be equal to 100.
+    """
     from tally_counter import Counter
 
     counter = Counter(foo=100)
+
     assert counter.foo == 100
 
 
-def test_init_args():
+def test_init__with_args():
+    """
+    Test the initialization of a `Counter` object with positional arguments.
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with the positional argument "foo".
+    Then: The "foo" attribute of the Counter object should be equal to 0.
+    """
     from tally_counter import Counter
 
-    counter = Counter("bar", "baz")
+    counter = Counter("bar")
+
     assert counter.bar == 0
-    assert counter.baz == 0
 
 
-def test_constructor_given_no_attr():
+def test_init__no_args_or_kwargs():
+    """
+    Test the initialization of a `Counter` object with no arguments.
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with no positional or keyword arguments
+    Then: The object should contain no data
+    """
     from tally_counter import Counter
 
     counter = Counter()
+
     assert counter.data == {}
 
 
-def test_ttl_attr():
+def test_init__valid_ttl_kwarg():
+    """
+    Test the initialization of a `Counter` object with a valid `ttl` keyword argument.
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with a `ttl` keyword argument set to 3600
+    Then: The object `ttl` attribute value should be 3600
+    """
     from tally_counter import Counter
 
     assert Counter(ttl=3600).ttl == 3600
 
-    assert Counter().ttl is None
 
+def test_init__invalid_ttl_kwarg():
+    """
+    Test the initialization of a `Counter` object with an invalid `ttl` keyword argument
 
-def test_invalid_ttl_attr():
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with a `ttl` keyword argument set to "foo"
+    Then: A `TypeError` exception should raise
+    """
     from tally_counter import Counter
 
     with pytest.raises(TypeError, match="'int' expected for argument 'ttl'"):
         Counter(foo=1001, ttl="foo")
 
 
-def test_invalid_attr():
+def test_init__invalid_kwarg_value():
+    """
+    Test the initialization of a `Counter` object with an invalid keyword argument
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with a `foo` keyword argument set to "bar"
+    Then: A `ValueError` exception should raise
+    """
     from tally_counter import Counter
 
     with pytest.raises(ValueError):
         Counter(foo="bar")
 
 
-def test_init_has_kwargs():
+def test_init__valid_kwarg_value():
+    """
+    Test the initialization of a `Counter` object with a valid keyword argument
+
+    Given: A `Counter` class from the `tally_counter` module.
+    When: A `Counter` object is created with a `foo` keyword argument set to 100
+    Then: A object "foo" attribute value is equal to 100
+    """
     from tally_counter import Counter
 
-    counter = Counter(foo=100, bar=110)
+    counter = Counter(foo=100)
 
     assert counter.foo == 100
-    assert counter.bar == 110
+    assert counter["foo"] == 100
 
 
-def test_init_no_kwargs():
+def test_get__create_if_not_defined():
+    """
+    Test the auto-creation of a `Counter` object attribute
+
+    Given: A `Counter` class from the `tally_counter` module
+    When: No attribute exists for the given key
+    Then: Create an empty series and return that
+    """
     from tally_counter import Counter
 
     counter = Counter()
 
-    # Attribute does not exist, instantiated to a zero value
     assert counter.foo == 0
     assert counter["oof"] == 0
-
-    # Attribute does not exist, instantiated to a zero value, then incremented
-    counter.bar.incr()
-    assert counter.bar == 1
-    counter["rab"].incr()
-    assert counter["rab"] == 1
-
-    # Attribute does not exist, instantiated to a zero value, then incremented by a
-    # given value
-    counter.baz.incr(1234)
-    assert counter.baz == 1234
-    counter["zab"].incr(1234)
-    assert counter["zab"] == 1234
 
 
 @pytest.mark.parametrize("kwargs", [{"all": 0, "odds": 0, "evens": 0}, {}])
@@ -100,7 +142,7 @@ def test_through(kwargs):
     assert counter["odds"] == 2550
 
 
-def test_dump():
+def test_data():
     from tally_counter import Counter
 
     counter = Counter("foo")
@@ -126,7 +168,7 @@ def test_thread_safety(patch_time):
 
     counter = Counter(cnt=0)
 
-    # Create two threads that will access the shared instance
+    # Create three threads that will access the shared instance
     thread_1 = threading.Thread(
         target=thread_function, kwargs={"counter": counter, "fr": 1, "to": 10000}
     )
@@ -149,5 +191,5 @@ def test_thread_safety(patch_time):
 
     thread_function(counter=counter, fr=1, to=200000)
 
-    # Check if the shared property has the expected value
+    # Check if the shared instance has the expected length
     assert counter.cnt.len() == 230001

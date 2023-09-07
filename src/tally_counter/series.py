@@ -19,8 +19,12 @@ class _Series:
         *,
         ttl: int | None = None,
         maxlen: int | None = None,
+        lock: threading.RLock | None = None,
     ) -> None:
-        self._lock = threading.RLock()
+        if lock is None:
+            lock = threading.RLock()
+        self._lock = lock
+
         self.__ttl = ttl
         self.__maxlen = maxlen
         self.__data_points: list[_Point] = []
@@ -56,7 +60,7 @@ class _Series:
             timestamp = time.monotonic_ns()
 
         with self._lock:
-            self.__data_points.append(_Point(int(value), timestamp))
+            self.__data_points.append(_Point(int(value), timestamp, lock=self._lock))
             self._prune()  # Pruned after adding data
 
     def mean(self, percentile: int = 0) -> float:

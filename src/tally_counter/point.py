@@ -12,8 +12,16 @@ class _Point:
     point.
     """
 
-    def __init__(self, value: int, timestamp: int) -> None:
-        self._lock = threading.RLock()
+    def __init__(
+        self,
+        value: int,
+        timestamp: int,
+        lock: threading.RLock | None = None,
+    ) -> None:
+        if lock is None:
+            lock = threading.RLock()
+        self._lock = lock
+
         self.__value = int(value)
         self.__timestamp = int(timestamp)
 
