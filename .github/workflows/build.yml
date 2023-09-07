@@ -1,5 +1,4 @@
-# Runs builds on all operating sytems on opening of a pull request or push to main brnch
-# Nox is used to run these builds for all supported Python versinns
+# CI Build action
 name: Build
 
 on:
@@ -25,7 +24,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install semver
           pip install .
       - name: Set this branch version
         id: branch-version
@@ -47,7 +45,6 @@ jobs:
         run: |
           git fetch origin main:main
           git checkout main
-          pip install .
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -58,8 +55,9 @@ jobs:
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
       - name: Check version
         env:
-          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
-        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ steps.get-main-version.outputs.MAIN_VERSION }}') > 0, 'Version not bumped'"
+          MAIN_VERSION: ${{ steps.get-main-version.outputs.MAIN_VERSION }} # From step above
+          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }} # From get-branch-version job output
+        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
   build:
