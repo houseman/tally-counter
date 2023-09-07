@@ -5,7 +5,7 @@ name: Build
 on:
   push:
 env:
-  CURRENT_VERSION:
+  BRANCH_VERSION:
   MAIN_VERSION:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
           pip install semver
           pip install .
       - name: Set current version
-        run: echo "CURRENT_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
+        run: echo "BRANCH_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
 
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
@@ -55,7 +55,7 @@ jobs:
       - name: Get main version
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_ENV"
       - name: Check version
-        run: python -c "import semver; assert semver.compare('${{ env.CURRENT_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
+        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
   build:
@@ -89,7 +89,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.CURRENT_VERSION }}
-          release_name: Release ${{ env.CURRENT_VERSION }}
+          tag_name: ${{ env.BRANCH_VERSION }}
+          release_name: Release ${{ env.BRANCH_VERSION }}
           draft: false
           prerelease: false
