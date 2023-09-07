@@ -94,7 +94,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
         with:
-          tag_name: $BRANCH_VERSION
-          release_name: Release $BRANCH_VERSION
+          tag_name: "v${{ env.BRANCH_VERSION }}"
+          release_name: "v${{ env.BRANCH_VERSION }}"
           draft: false
           prerelease: false
