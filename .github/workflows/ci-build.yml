@@ -31,6 +31,7 @@ jobs:
         run: echo "HEAD_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
       - name: Set HEAD_OFF_MAIN
         id: set-head-off-main
+        if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
         run: |
           git fetch origin main:main
           if git merge-base --is-ancestor main HEAD; then
