@@ -1,5 +1,5 @@
 # CI Build action
-name: Build
+name: CI Build
 
 on:
   push:
@@ -8,44 +8,44 @@ permissions:
   contents: write # allows the action to create a release
 
 jobs:
-  # Get this branch version
-  get-branch-version:
+  # Get the HEAD branch semantic version
+  head-branch-version:
     runs-on: ubuntu-latest
     # Map outputs to environment variables
     outputs:
-      BRANCH_VERSION: ${{ steps.branch-version.outputs.BRANCH_VERSION }}
-      OFF_MAIN: ${{ steps.set-off-main.outputs.OFF_MAIN }}
+      HEAD_VERSION: ${{ steps.set-head-version.outputs.HEAD_VERSION }}
+      HEAD_OFF_MAIN: ${{ steps.set-head-off-main.outputs.HEAD_OFF_MAIN }}
     steps:
-      - name: Checkout
+      - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.8"
-      - name: Install this package
+      - name: Pip install this package
         run: |
           python -m pip install --upgrade pip
           pip install .
-      - name: Set BRANCH_VERSION
-        id: branch-version
-        run: echo "BRANCH_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
-      - name: Set OFF_MAIN
-        id: set-off-main
+      - name: Set HEAD_VERSION
+        id: set-head-version
+        run: echo "HEAD_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
+      - name: Set HEAD_OFF_MAIN
+        id: set-head-off-main
         run: |
           git fetch origin main:main
           if git merge-base --is-ancestor main HEAD; then
-            echo "OFF_MAIN=1" >> "$GITHUB_OUTPUT"
+            echo "HEAD_OFF_MAIN=1" >> "$GITHUB_OUTPUT"
           else
-            echo "OFF_MAIN=0" >> "$GITHUB_OUTPUT"
+            echo "HEAD_OFF_MAIN=0" >> "$GITHUB_OUTPUT"
           fi
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
     runs-on: ubuntu-latest
-    needs: get-branch-version
-    # Run if this push is not to "main" itself, or is to a branch that is off main
-    if: ${{ github.ref != 'refs/heads/main' || needs.get-branch-version.outputs.OFF_MAIN == '1' }}
+    needs: head-branch-version
+    # Run a semantic version check if this push is to a main descendant
+    if: ${{ needs.head-branch-version.outputs.HEAD_OFF_MAIN == '1' }}
     steps:
-      - name: Checkout
+      - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -61,24 +61,23 @@ jobs:
           pip install semver
           pip install .
       - name: Set MAIN_VERSION
-        id: get-main-version
+        id: set-main-version
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
-      - name: Compare BRANCH_VERSION > MAIN_VERSION
+      - name: Compare HEAD_VERSION > MAIN_VERSION
         env:
-          MAIN_VERSION: ${{ steps.get-main-version.outputs.MAIN_VERSION }} # From step above
-          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }} # From get-branch-version job output
-        run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
+          MAIN_VERSION: ${{ steps.set-main-version.outputs.MAIN_VERSION }}
+          HEAD_VERSION: ${{ needs.head-branch-version.outputs.HEAD_VERSION }}
+        run: python -c "import semver; assert semver.compare('${{ env.HEAD_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
   build:
-    needs: version-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-      - name: Checkout
+      - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }} + Nox om ${{ matrix.os }}
         uses: wntrblm/nox@2023.04.22
@@ -93,7 +92,7 @@ jobs:
 
   # Create a new release if branch is "main"
   release:
-    needs: get-branch-version
+    needs: head-branch-version
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }} # Only create a release if the push branch is "main"
     steps:
@@ -101,9 +100,9 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
+          HEAD_VERSION: ${{ needs.head-branch-version.outputs.HEAD_VERSION }}
         with:
-          tag_name: "v${{ env.BRANCH_VERSION }}"
-          release_name: "v${{ env.BRANCH_VERSION }}"
+          tag_name: "v${{ env.HEAD_VERSION }}"
+          release_name: "v${{ env.HEAD_VERSION }}"
           draft: false
           prerelease: false
