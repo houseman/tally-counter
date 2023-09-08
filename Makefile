@@ -1,49 +1,28 @@
-TEST_OPTS ?=
-NOX_OPTS ?=
-
 # Constants
-PIP_COMPILE_ARGS = --upgrade --no-emit-index-url --no-emit-trusted-host --resolver=legacy
-SUPPORTED_PYTHON_VERSIONS = 3.8 3.9 3.10 3.11
+PIP_ARGS = --upgrade --quiet
+override PYTHON_VERSIONS ?= 3.8 3.9 3.10 3.11
 
-.PHONY: update-pip pip-compile pip-sync update install update-pre-commit test test-all lint lint-all
-
-## Compile *requirements.txt files from *.in files, using pip-tools
-pip-compile:
-	@python -m piptools compile --version &> /dev/null || (echo "Installing pip-tools" && python -m pip install --quiet pip-tools)
-	CUSTOM_COMPILE_COMMAND="make update" python -m piptools compile  $(PIP_COMPILE_ARGS) --output-file requirements.txt pyproject.toml
-	CUSTOM_COMPILE_COMMAND="make update" python -m piptools compile  $(PIP_COMPILE_ARGS) --extra dev --pip-args "--constrain requirements.txt" --output-file dev-requirements.txt pyproject.toml
-
-## Install dependencies from *requirements.txt files into the environment
-pip-sync:
-	@python -m piptools sync --version &> /dev/null || (echo "Installing pip-tools" && python -m pip install --quiet pip-tools)
-	python -m piptools sync requirements.txt dev-requirements.txt
-	python -m pip install --no-deps --disable-pip-version-check --quiet --editable .
-
-## Update pre-commit hooks
-update-pre-commit:
-	@python -m pre_commit --version &> /dev/null || (echo "Installing pre-commit" && python -m pip install --quiet pre-commit)
-	python -m pre_commit autoupdate
+.PHONY: .update-pip update install test lint
 
 ## Update pip
-update-pip:
-	python -m pip install --upgrade pip pip-tools
+.update-pip:
+	python -m pip install $(PIP_ARGS) pip
 
-update: update-pip pip-compile pip-sync update-pre-commit ## Update dependencies
-install: update-pip pip-sync ## Install dependencies
+update: .update-pip ## Update dependencies
+	python -m pip install $(PIP_ARGS) --force-reinstall ".[dev]" ".[test]"
+	python -m pip install $(PIP_ARGS) --force-reinstall --editable .
+
+install: .update-pip ## Install dependencies
+	python -m pip install $(PIP_ARGS) ".[dev]" ".[test]"
+	python -m pip install $(PIP_ARGS) --editable .
 
 test: ## Run unit tests in all supported Python versions
-	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
-	# @nox --version &> /dev/null || (echo "${RED}Failed: requires nox${RESET}" && exit 1)
-	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --session test $(NOX_OPTS)
+	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install $(PIP_ARGS) nox)
+	nox --python $(PYTHON_VERSIONS) --reuse-existing-virtualenvs --tag test
 
 lint: ## Run linting in all supported Python versions
-	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install --quiet nox)
-	nox --python $(SUPPORTED_PYTHON_VERSIONS) --reuse-existing-virtualenvs --no-install --session lint $(NOX_OPTS)
-
-nice: ## Run linting in local environment
-	black .
-	ruff check --fix .
-	mypy .
+	@python -m nox --version &> /dev/null || (echo "Installing nox" && python -m pip install $(PIP_ARGS) nox)
+	nox --python $(PYTHON_VERSIONS) --reuse-existing-virtualenvs --no-install --tag lint
 
 help: ## Show this help message
 	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'

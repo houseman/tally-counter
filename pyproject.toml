@@ -28,11 +28,13 @@ dependencies = []
 [project.optional-dependencies]
 
 dev = [
+  # Dev dependencies
   "pre-commit",
   "black",
   "ruff",
   "mypy",
-
+]
+test = [
   # Test dependencies
   "pytest",
   "pytest-cov",
