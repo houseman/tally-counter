@@ -93,7 +93,7 @@ jobs:
 
   # Create a new release if branch is "main"
   release:
-    needs: head-branch-version
+    needs: [head-branch-version, build]
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }} # Only create a release if the push branch is "main"
     steps:
