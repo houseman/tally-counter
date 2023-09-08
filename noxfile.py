@@ -5,10 +5,10 @@ import nox
 
 CI = os.environ.get("CI") is not None  # Set to True if running in CI
 
-SUPPORTED_PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
+PYTHON_VERSIONS = ["3.8", "3.9", "3.10", "3.11"]
 
 
-@nox.session(python=SUPPORTED_PYTHON_VERSIONS, tags=["test"])
+@nox.session(python=PYTHON_VERSIONS, tags=["test"])
 def pytest(session):
     """Run unit tests."""
     session.install(".[test]")  # install test dependencies
@@ -16,7 +16,7 @@ def pytest(session):
     session.run("python", "-m", "pytest")  # Runs pytest
 
 
-@nox.session(python=SUPPORTED_PYTHON_VERSIONS, tags=["test"])
+@nox.session(python=PYTHON_VERSIONS, tags=["test"])
 def doctest(session):
     """Run doc tests."""
     session.install(".[test]")  # install test dependencies
@@ -36,7 +36,7 @@ def doctest(session):
     )
 
 
-@nox.session(python=SUPPORTED_PYTHON_VERSIONS, tags=["lint"])
+@nox.session(python=PYTHON_VERSIONS, tags=["lint"])
 def ruff(session):
     """Run the ruff linter."""
     args = ["ruff", "check", "."]
@@ -49,7 +49,7 @@ def ruff(session):
     session.run(*args)
 
 
-@nox.session(python=SUPPORTED_PYTHON_VERSIONS, tags=["lint", "format"])
+@nox.session(python=PYTHON_VERSIONS, tags=["lint", "format"])
 def black(session):
     """Run the black formatter."""
     args = ["black", "."]
@@ -62,7 +62,7 @@ def black(session):
     session.run(*args)
 
 
-@nox.session(python=SUPPORTED_PYTHON_VERSIONS, tags=["lint", "type"])
+@nox.session(python=PYTHON_VERSIONS, tags=["lint", "type"])
 def mypy(session):
     """Run the mypy type checker."""
     args = ["mypy", "."]
