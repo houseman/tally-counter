@@ -14,7 +14,7 @@ jobs:
     # Map outputs to environment variables
     outputs:
       BRANCH_VERSION: ${{ steps.branch-version.outputs.BRANCH_VERSION }}
-      OFF_MAIN: ${{ steps.set-off-main.outputs.OFF_MAIN }}
+      IS_MAIN_DESCENDANT: ${{ steps.set-off-main.outputs.IS_MAIN_DESCENDANT }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,21 +29,21 @@ jobs:
       - name: Set BRANCH_VERSION
         id: branch-version
         run: echo "BRANCH_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
-      - name: Set OFF_MAIN
-        id: set-off-main
+      - name: Set IS_MAIN_DESCENDANT
+        id: set-is-main-descendant
         run: |
           git fetch origin main:main
           if git merge-base --is-ancestor main HEAD; then
-            echo "OFF_MAIN=1" >> "$GITHUB_OUTPUT"
+            echo "IS_MAIN_DESCENDANT=1" >> "$GITHUB_OUTPUT"
           else
-            echo "OFF_MAIN=0" >> "$GITHUB_OUTPUT"
+            echo "IS_MAIN_DESCENDANT=0" >> "$GITHUB_OUTPUT"
           fi
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
     runs-on: ubuntu-latest
     needs: get-branch-version
-    # Run if this push is not to "main" itself, or is to a branch that is off main
-    if: ${{ github.ref != 'refs/heads/main' || needs.get-branch-version.outputs.OFF_MAIN == '1' }}
+    # Run a semantic version check if this push is to a main descendant
+    if: ${{ needs.get-branch-version.outputs.IS_MAIN_DESCENDANT == '1' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
