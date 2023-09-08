@@ -1,4 +1,4 @@
-"""The `DataSeries` model."""
+"""The `_Series` model."""
 
 from __future__ import annotations
 
@@ -6,28 +6,32 @@ import math
 import threading
 import time
 
-from .data_point import DataPoint
+from .point import _Point
 
 
-class DataSeries:
-    """Represents a data series, a linear sequence of data points, ordered by time."""
+class _Series:
+    """A data series, a linear sequence of data points, ordered by time."""
 
     def __init__(
         self,
-        initial_value: int | DataPoint | None = None,
+        initial_value: int | _Point | None = None,
         /,
         *,
         ttl: int | None = None,
         maxlen: int | None = None,
+        lock: threading.RLock | None = None,
     ) -> None:
-        self._lock = threading.RLock()
+        if lock is None:
+            lock = threading.RLock()
+        self._lock = lock
+
         self.__ttl = ttl
         self.__maxlen = maxlen
-        self.__data_points: list[DataPoint] = []
+        self.__data_points: list[_Point] = []
 
         if initial_value is not None:
             with self._lock:
-                if isinstance(initial_value, DataPoint):
+                if isinstance(initial_value, _Point):
                     self._append(initial_value.value, timestamp=initial_value.timestamp)
                 else:
                     self._append(int(initial_value), timestamp=time.monotonic_ns())
@@ -56,7 +60,7 @@ class DataSeries:
             timestamp = time.monotonic_ns()
 
         with self._lock:
-            self.__data_points.append(DataPoint(int(value), timestamp))
+            self.__data_points.append(_Point(int(value), timestamp, lock=self._lock))
             self._prune()  # Pruned after adding data
 
     def mean(self, percentile: int = 0) -> float:
@@ -98,10 +102,11 @@ class DataSeries:
 
             return data_points[-1].timestamp - data_points[0].timestamp
 
-    def dump(self) -> list[tuple[int, int]]:
+    @property
+    def data(self) -> list[tuple[int, int]]:
         """Return all series data."""
         with self._lock:
-            return [dp.dump() for dp in self._pruned()]
+            return [dp.data for dp in self._pruned()]
 
     @property
     def sum(self) -> int:
@@ -130,7 +135,7 @@ class DataSeries:
             if self.__maxlen and len(self.__data_points) > self.__maxlen:
                 self.__data_points = self.__data_points[-self.__maxlen :]
 
-    def _pruned(self, percentile: int = 0) -> list[DataPoint]:
+    def _pruned(self, percentile: int = 0) -> list[_Point]:
         self._prune()
         if percentile:
             return self._get_percentile(self.__data_points, percentile=percentile)
@@ -138,8 +143,8 @@ class DataSeries:
         return self.__data_points
 
     def _get_percentile(
-        self, data_points: list[DataPoint], percentile: int
-    ) -> list[DataPoint]:
+        self, data_points: list[_Point], percentile: int
+    ) -> list[_Point]:
         """Return the requested percentile from the given data series."""
         if not 100 > percentile > 1:  # noqa: PLR2004
             raise ValueError(
@@ -154,10 +159,10 @@ class DataSeries:
 
     def __eq__(self, other: object) -> bool:
         """Overloads the `==` operator."""
-        if isinstance(other, DataPoint):
+        if isinstance(other, _Point):
             return self.sum == other.value
 
-        if isinstance(other, DataSeries):
+        if isinstance(other, _Series):
             return self.sum == other.sum
 
         if isinstance(other, int):

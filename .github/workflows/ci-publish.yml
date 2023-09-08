@@ -1,5 +1,5 @@
 # This workflow will deploy the released package to PyPI
-name: Publish to PyPI
+name: CI Publish
 
 on:
   workflow_run:
