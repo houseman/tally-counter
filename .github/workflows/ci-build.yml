@@ -8,13 +8,13 @@ permissions:
   contents: write # allows the action to create a release
 
 jobs:
-  # Get this branch version
-  get-branch-version:
+  # Get the current branch version
+  current-branch-version:
     runs-on: ubuntu-latest
     # Map outputs to environment variables
     outputs:
       BRANCH_VERSION: ${{ steps.branch-version.outputs.BRANCH_VERSION }}
-      IS_MAIN_DESCENDANT: ${{ steps.set-off-main.outputs.IS_MAIN_DESCENDANT }}
+      IS_MAIN_DESCENDANT: ${{ steps.set-is-main-descendant.outputs.IS_MAIN_DESCENDANT }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,9 +41,9 @@ jobs:
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
     runs-on: ubuntu-latest
-    needs: get-branch-version
+    needs: current-branch-version
     # Run a semantic version check if this push is to a main descendant
-    if: ${{ needs.get-branch-version.outputs.IS_MAIN_DESCENDANT == '1' }}
+    if: ${{ needs.current-branch-version.outputs.IS_MAIN_DESCENDANT == '1' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,7 +66,7 @@ jobs:
       - name: Compare BRANCH_VERSION > MAIN_VERSION
         env:
           MAIN_VERSION: ${{ steps.get-main-version.outputs.MAIN_VERSION }} # From step above
-          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }} # From get-branch-version job output
+          BRANCH_VERSION: ${{ needs.current-branch-version.outputs.BRANCH_VERSION }} # From current-branch-version job output
         run: python -c "import semver; assert semver.compare('${{ env.BRANCH_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
@@ -92,7 +92,7 @@ jobs:
 
   # Create a new release if branch is "main"
   release:
-    needs: get-branch-version
+    needs: current-branch-version
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }} # Only create a release if the push branch is "main"
     steps:
@@ -100,7 +100,7 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_VERSION: ${{ needs.get-branch-version.outputs.BRANCH_VERSION }}
+          BRANCH_VERSION: ${{ needs.current-branch-version.outputs.BRANCH_VERSION }}
         with:
           tag_name: "v${{ env.BRANCH_VERSION }}"
           release_name: "v${{ env.BRANCH_VERSION }}"
