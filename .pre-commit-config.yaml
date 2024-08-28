@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: check-case-conflict
       - id: check-yaml
@@ -12,25 +12,16 @@ repos:
         args: ["--pytest-test-first"]
       - id: no-commit-to-branch
 
-  - repo: https://github.com/lk16/detect-missing-init
-    rev: v0.1.6
-    hooks:
-      - id: detect-missing-init
-        args:
-          ["--create", "--track", "--python-folders", "tests,src/tally_counter"]
-
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.5.1"
+    rev: "v1.11.2"
     hooks:
       - id: mypy
 
-  - repo: https://github.com/psf/black
-    rev: 23.7.0
-    hooks:
-      - id: black
-
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.287
+    rev: v0.6.2
     hooks:
+      # Run the linter.
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+      # Run the formatter.
+      - id: ruff-format

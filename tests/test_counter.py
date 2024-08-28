@@ -1,4 +1,6 @@
 """`Counter` unit tests."""
+
+import re
 import threading
 
 import pytest
@@ -86,7 +88,7 @@ def test_init__invalid_kwarg_value():
     """
     from tally_counter import Counter
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=re.escape("invalid literal for int() with base 10: 'bar'")):
         Counter(foo="bar")
 
 
@@ -153,12 +155,11 @@ def test_data():
     assert counter.data == {"foo": [(1022, 1000), (1023, 1001), (1024, 1002)]}
 
 
-@pytest.fixture()
-def patch_time(mocker):
-    ...
+@pytest.fixture
+def patch_time(mocker): ...
 
 
-def test_thread_safety(patch_time):
+def test_thread_safety(patch_time):  # noqa: ARG001
     from tally_counter import Counter
 
     # Define a function that will be executed by each thread
@@ -169,14 +170,14 @@ def test_thread_safety(patch_time):
     counter = Counter(cnt=0)
 
     # Create three threads that will access the shared instance
-    thread_1 = threading.Thread(
-        target=thread_function, kwargs={"counter": counter, "fr": 1, "to": 10000}
-    )
+    thread_1 = threading.Thread(target=thread_function, kwargs={"counter": counter, "fr": 1, "to": 10000})
     thread_2 = threading.Thread(
-        target=thread_function, kwargs={"counter": counter, "fr": 10001, "to": 20000}
+        target=thread_function,
+        kwargs={"counter": counter, "fr": 10001, "to": 20000},
     )
     thread_3 = threading.Thread(
-        target=thread_function, kwargs={"counter": counter, "fr": 20001, "to": 30000}
+        target=thread_function,
+        kwargs={"counter": counter, "fr": 20001, "to": 30000},
     )
 
     # Start the threads

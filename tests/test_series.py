@@ -16,7 +16,7 @@ def test_init():
 
 
 @pytest.mark.parametrize(
-    ["series", "expected"],
+    ("series", "expected"),
     [
         (_Series(10), 10),
         (_Series(100), _Point(100, 0)),
@@ -28,7 +28,7 @@ def test_equality(series, expected):
 
 
 @pytest.mark.parametrize(
-    ["series", "expected"],
+    ("series", "expected"),
     [
         (_Series(100), 10),
         (_Series(100), _Point(10, 0)),
@@ -70,16 +70,12 @@ def test_decr():
 
 
 def test_incr_raises_type_error():
-    with pytest.raises(
-        TypeError, match=re.escape("incr() argument must be an integer, not 'str'")
-    ):
+    with pytest.raises(TypeError, match=re.escape("incr() argument must be an integer, not 'str'")):
         _Series().incr("foo")
 
 
 def test_decr_raises_type_error():
-    with pytest.raises(
-        TypeError, match=re.escape("decr() argument must be an integer, not 'str'")
-    ):
+    with pytest.raises(TypeError, match=re.escape("decr() argument must be an integer, not 'str'")):
         _Series().decr("foo")
 
 
@@ -214,5 +210,5 @@ def test_data():
 
 
 def test_get_percentile_exception(series):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Percentile must be an integer from 1 to 99, not 100."):
         series._get_percentile(series._pruned(), 100)

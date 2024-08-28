@@ -17,14 +17,14 @@ update               Update dependencies
 ```
 #### Install dependencies
 
-To install required dependencies.
+To install required dependencies:
 ```shell
 make install
 ```
 
 #### Update dependencies
 
-To update required dependencies.
+To update required dependencies:
 
 ```shell
 make update
@@ -32,32 +32,18 @@ make update
 
 ### Linting
 
-Run linting in all supported Python versions.
+Run linting tools:
 
 ```shell
 make lint
 ```
 
-Run linting in in specific Python version(s).
-
-```shell
-PYTHON_VERSIONS="3.9" make lint
-PYTHON_VERSIONS="3.9 3.11" make lint
-```
-
 ### Unit Tests
 
-Run unit tests in all supported Python versions. (This includes running doc tests.)
+Run unit tests (includes running doc tests):
 
 ```shell
 make test
-```
-
-Run unit and doc tests in specific Python version(s).
-
-```shell
-PYTHON_VERSIONS="3.9" make test
-PYTHON_VERSIONS="3.9 3.11" make test
 ```
 
 ### Pre-commit hooks

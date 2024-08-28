@@ -1,4 +1,5 @@
 """Tally Counter."""
+
 import importlib.metadata
 
 from .counter import Counter

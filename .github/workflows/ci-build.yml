@@ -76,20 +76,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }} + Nox om ${{ matrix.os }}
-        uses: wntrblm/nox@2023.04.22
+        uses: wntrblm/nox@2024.04.15
         with:
           python-versions: "${{ matrix.python-version }}"
-      - name: Run linting
+      - name: Run CI checks
         run: |
-          nox --tag lint --python "${{ matrix.python-version }}"
-      - name: Run tests
-        run: |
-          nox --tag test --python "${{ matrix.python-version }}"
+          nox --python "${{ matrix.python-version }}"
 
   # Create a new release if branch is "main"
   release:
