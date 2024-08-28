@@ -1,4 +1,5 @@
 """Tally Counter."""
+
 from __future__ import annotations
 
 import threading
@@ -67,13 +68,12 @@ class Counter:
         except KeyError:
             return None
         except ValueError as e:
-            raise TypeError(f"'int' expected for argument '{key}'") from e
+            message = f"'int' expected for argument '{key}'"
+            raise TypeError(message) from e
 
     def _get_or_create_series(self, key: str) -> _Series:
         with self._lock:
             if key not in self.__data:
-                self.__data[key] = _Series(
-                    None, ttl=self.__ttl, maxlen=self.__maxlen, lock=self._lock
-                )
+                self.__data[key] = _Series(None, ttl=self.__ttl, maxlen=self.__maxlen, lock=self._lock)
 
             return self.__data[key]
