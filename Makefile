@@ -5,13 +5,13 @@ PIP_ARGS = --upgrade
 
 ## Update pip
 .update-pip:
-	@python -m pip install $(PIP_ARGS) pip setuptools
+	@python -m pip install $(PIP_ARGS) pip setuptools uv
 
 update: .update-pip ## Update dependencies in local environment
-	@python -m pip install $(PIP_ARGS) --force-reinstall --editable ".[dev,test]"
+	@python -m uv pip install $(PIP_ARGS) --force-reinstall --editable ".[dev,test]"
 
 install: ## Install dependencies
-	@python -m pip install $(PIP_ARGS) --editable ".[dev,test]"
+	@python -m uv pip install $(PIP_ARGS) --editable ".[dev,test]"
 
 test: doctest ## Run unit tests
 	@python -m pytest
@@ -25,7 +25,7 @@ lint: ## Run linting
 	@python -m mypy
 
 ci: export CI=true
-ci: install test doctest lint ## Run all CI checks
+ci: update test doctest lint ## Run all CI checks
 
 help: ## Show this help message
 	@egrep -h '\s##\s' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
