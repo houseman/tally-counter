@@ -26,6 +26,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install .
+      - name: Get current branch name
+        id: get-branch-name
+        run: |
+          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "BRANCH_NAME=$BRANCH_NAME"
       - name: Set HEAD_VERSION
         id: set-head-version
         run: echo "HEAD_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
@@ -34,7 +40,7 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
         run: |
           git fetch origin main:main
-          if git merge-base --is-ancestor main HEAD; then
+          if git merge-base --is-ancestor main  ${{ steps.get-branch-name.outputs.BRANCH_NAME }}; then
             echo "HEAD_OFF_MAIN=1" >> "$GITHUB_OUTPUT"
             echo "HEAD_OFF_MAIN=1"
           else
