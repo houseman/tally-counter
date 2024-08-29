@@ -1,5 +1,5 @@
-# CI Build action
-name: CI Build
+# An action to run continuous integration checks
+name: Run Continuous Integration Checks
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
       - name: Pip install this package
@@ -71,7 +71,7 @@ jobs:
         run: python -c "import semver; assert semver.compare('${{ env.HEAD_VERSION }}', '${{ env.MAIN_VERSION }}') > 0, 'Version not bumped'"
 
   # Run linting and tests on all operating systems and supported Python versions
-  build:
+  run-ci:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -90,7 +90,7 @@ jobs:
 
   # Create a new release if branch is "main"
   release:
-    needs: [head-branch-version, build]
+    needs: [head-branch-version, run-ci]
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/main' }} # Only create a release if the push branch is "main"
     steps:

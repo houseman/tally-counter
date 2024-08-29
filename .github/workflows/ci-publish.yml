@@ -1,11 +1,11 @@
 # This workflow will deploy the released package to PyPI
-name: CI Publish
+name: Publish Python Package
 
 on:
   workflow_run:
-    workflows: [Build]
+    workflows: [Run Continuous Integration Checks]
     types: [completed]
-    branches: [main] # Ony run this job for completed "Build" jobs on branch "main"
+    branches: [main] # Ony run this job for completed "Run Continuous Integration Checks" jobs on branch "main"
   release:
     types: [published]
 
@@ -20,9 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.8"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
