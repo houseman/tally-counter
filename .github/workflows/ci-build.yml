@@ -18,35 +18,40 @@ jobs:
     steps:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.8"
+
       - name: Pip install this package
         run: |
           python -m pip install --upgrade pip
           pip install .
-      - name: Get current branch name
-        id: get-branch-name
-        run: |
-          BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          echo "BRANCH_NAME=$BRANCH_NAME"
+
       - name: Set HEAD_VERSION
         id: set-head-version
         run: echo "HEAD_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch main branch
+        run: |
+          git fetch origin main:main
+          git branch -a
+          git log --oneline -5
+
       - name: Set HEAD_OFF_MAIN
         id: set-head-off-main
         if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
         run: |
           git fetch origin main:main
-          if git merge-base --is-ancestor main  ${{ steps.get-branch-name.outputs.BRANCH_NAME }}; then
+          if git merge-base --is-ancestor main HEAD; then
             echo "HEAD_OFF_MAIN=1" >> "$GITHUB_OUTPUT"
             echo "HEAD_OFF_MAIN=1"
           else
             echo "HEAD_OFF_MAIN=0" >> "$GITHUB_OUTPUT"
             echo "HEAD_OFF_MAIN=0"
           fi
+
   # Check that the package version is bumped up from the version in "main", if current branch is not "main"
   version-check:
     runs-on: ubuntu-latest
@@ -56,21 +61,26 @@ jobs:
     steps:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
+
       - name: Checkout main branch
         run: |
           git fetch origin main:main
           git checkout main
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip semver
           pip install .
+
       - name: Set MAIN_VERSION
         id: set-main-version
         run: echo "MAIN_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
+
       - name: Compare HEAD_VERSION > MAIN_VERSION
         env:
           MAIN_VERSION: ${{ steps.set-main-version.outputs.MAIN_VERSION }}
@@ -87,10 +97,12 @@ jobs:
     steps:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4
+
       - name: Set up Python ${{ matrix.python-version }} + Nox om ${{ matrix.os }}
         uses: wntrblm/nox@2024.04.15
         with:
           python-versions: "${{ matrix.python-version }}"
+
       - name: Run CI checks
         run: |
           nox --python "${{ matrix.python-version }}"
