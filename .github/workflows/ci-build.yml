@@ -39,6 +39,13 @@ jobs:
           git branch -a
           git log --oneline -5
 
+      - name: Print commit history for debugging
+        run: |
+          echo "Commit history for main branch:"
+          git log origin/main --oneline -5
+          echo "Commit history for current branch:"
+          git log --oneline -5
+
       - name: Set HEAD_OFF_MAIN
         id: set-head-off-main
         if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
