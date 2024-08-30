@@ -42,9 +42,19 @@ jobs:
       - name: Print commit history for debugging
         run: |
           echo "Commit history for main branch:"
+          echo "-------------------------------"
           git log origin/main --oneline -5
           echo "Commit history for current branch:"
+          echo "----------------------------------"
           git log --oneline -5
+
+      - name: Print merge base for debugging
+        run: |
+          git fetch origin main:main
+          merge_base=$(git merge-base origin/main HEAD)
+          echo "Merge base commit: $merge_base"
+          echo "Commit history from merge base to HEAD:"
+          git log $merge_base..HEAD --oneline
 
       - name: Set HEAD_OFF_MAIN
         id: set-head-off-main
