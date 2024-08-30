@@ -51,7 +51,7 @@ jobs:
       - name: Print merge base for debugging
         run: |
           git fetch origin main:main
-          merge_base=$(git merge-base origin/main HEAD)
+          merge_base=$(git merge-base origin/main HEAD) || { echo "No common ancestor found"; exit 1; }
           echo "Merge base commit: $merge_base"
           echo "Commit history from merge base to HEAD:"
           git log $merge_base..HEAD --oneline
