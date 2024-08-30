@@ -33,35 +33,12 @@ jobs:
         id: set-head-version
         run: echo "HEAD_VERSION=$(python -c 'import tally_counter; print(tally_counter.__version__)')" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch main branch
-        run: |
-          git fetch origin main:main
-          git branch -a
-          git log --oneline -5
-
-      - name: Print commit history for debugging
-        run: |
-          echo "Commit history for main branch:"
-          echo "-------------------------------"
-          git log origin/main --oneline -5
-          echo "Commit history for current branch:"
-          echo "----------------------------------"
-          git log --oneline -5
-
-      - name: Print merge base for debugging
-        run: |
-          git fetch origin main:main
-          merge_base=$(git merge-base origin/main HEAD) || { echo "No common ancestor found"; exit 1; }
-          echo "Merge base commit: $merge_base"
-          echo "Commit history from merge base to HEAD:"
-          git log $merge_base..HEAD --oneline
-
       - name: Set HEAD_OFF_MAIN
         id: set-head-off-main
         if: ${{ github.ref != 'refs/heads/main' }} # Skip if "main"
         run: |
           git fetch origin main:main
-          if git merge-base --is-ancestor main HEAD; then
+          if git merge-base --is-ancestor origin/main HEAD; then
             echo "HEAD_OFF_MAIN=1" >> "$GITHUB_OUTPUT"
             echo "HEAD_OFF_MAIN=1"
           else
